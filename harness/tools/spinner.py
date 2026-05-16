@@ -7,5 +7,5 @@ def spinner(stop_event):
         if stop_event.is_set():
             break
         print(f"\r\033[KLoading {dots}", end="", flush=True)
-        time.sleep(0.3)
+        time.sleep(0.6)
     print("\r", end="")

@@ -36,9 +36,9 @@ def find_project_dir_from_docs(project_name: str) -> Path | None:
     return None
 
 
-def build_file_content_list(file_paths: list[Path]) -> list[dict]:
+def build_app_file_content_list(file_paths: list[Path]) -> list[dict]:
     """
-    파일 경로 리스트를 받아 각 파일의 내용을 반환한다.
+    파일 경로 리스트를 받아 각 앱 파일의 내용을 반환한다.
 
     Args:
         file_paths: 파일 경로 리스트
@@ -46,10 +46,13 @@ def build_file_content_list(file_paths: list[Path]) -> list[dict]:
     Returns:
         파일 내용 객체 리스트
     """
+    base_app_dir = Path("app")
+
     file_contents = []
 
     for file_path in file_paths:
-        content = read_file_content(file_path)
+        full_file_path = base_app_dir / file_path
+        content = read_file_content(full_file_path)
         file_contents.append({"path": str(file_path), "content": content})
 
     return file_contents
