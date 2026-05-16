@@ -1,0 +1,76 @@
+{
+  "goal": "React + TypeScript 기반의 새로운 웹 애플리케이션 프로젝트를 초기화하고, 실행 가능한 기본 환경을 구성하여 향후 기능 개발이 가능한 상태로 설정",
+  "plan_summary": "프로젝트 기본 디렉토리 구조(public, src) 생성 → 패키지 관리 및 빌드 설정 파일(package.json, tsconfig.json, webpack.config.js) 작성 → 개발 도구 설정(.eslintrc.json, .prettierrc) → React 진입점 파일(src/index.tsx, src/App.tsx) 및 HTML 템플릿(public/index.html) 작성 → 프로젝트 문서 및 git 설정(.gitignore, README.md)",
+  "constraints": [
+    "React 및 TypeScript는 고정된 기술 스택으로 변경 불가",
+    "신규 프로젝트로서 기존 파일 의존성 없음",
+    "기본 개발 환경만 구성하며 고급 최적화는 제외",
+    "번들러는 webpack 기반 표준 설정 사용",
+    "npm이 패키지 관리자로 사용됨"
+  ],
+  "file_inventory": [
+    {
+      "path": "package.json",
+      "action": "create",
+      "reason": "React, TypeScript, webpack 등 필수 의존성 정의 및 빌드/개발 스크립트 설정"
+    },
+    {
+      "path": "tsconfig.json",
+      "action": "create",
+      "reason": "TypeScript 컴파일러 옵션 설정 (target, module, jsx, strict 등)"
+    },
+    {
+      "path": "webpack.config.js",
+      "action": "create",
+      "reason": "웹팩 번들러 설정 (entry, output, loaders, plugins 정의)"
+    },
+    {
+      "path": "public/index.html",
+      "action": "create",
+      "reason": "React 애플리케이션의 HTML 진입점 템플릿"
+    },
+    {
+      "path": "src/index.tsx",
+      "action": "create",
+      "reason": "React 애플리케이션 초기화 및 루트 컴포넌트 마운트"
+    },
+    {
+      "path": "src/App.tsx",
+      "action": "create",
+      "reason": "메인 App 컴포넌트로 향후 기능 개발의 기반이 될 구조"
+    },
+    {
+      "path": ".gitignore",
+      "action": "create",
+      "reason": "node_modules, dist, 빌드 산출물 등 버전 관리 제외 파일 정의"
+    },
+    {
+      "path": ".eslintrc.json",
+      "action": "create",
+      "reason": "코드 품질 관리를 위한 ESLint 설정"
+    },
+    {
+      "path": ".prettierrc",
+      "action": "create",
+      "reason": "코드 포매팅 일관성 유지를 위한 Prettier 설정"
+    },
+    {
+      "path": "README.md",
+      "action": "create",
+      "reason": "프로젝트 개요, 설치 방법, 실행 방법 등 기본 문서"
+    }
+  ],
+  "acceptance_criteria": [
+    "package.json에 React, ReactDOM, TypeScript, webpack, webpack-cli, @types/react, @types/react-dom 등 필수 의존성이 명시되어 있고 버전이 호환 가능",
+    "tsconfig.json이 strict 모드 활성화 및 JSX 지원 설정으로 구성됨",
+    "webpack.config.js에서 .tsx, .ts 파일을 babel-loader로 처리하고 HTML 플러그인으로 public/index.html 연결",
+    "npm install 명령어로 모든 의존성 설치 가능",
+    "npm run build 또는 npm run dev로 번들링/실행 가능",
+    "src/index.tsx에서 ReactDOM.render()로 App 컴포넌트를 #root 엘리먼트에 마운트",
+    "src/App.tsx가 기본 React 함수형 컴포넌트로 구현되고 TypeScript로 타입 정의됨",
+    "public/index.html에 <div id='root'></div> 엘리먼트가 존재",
+    ".gitignore에 node_modules/, dist/, build/ 등 표준 제외 항목 포함",
+    "README.md에 프로젝트 설명, 설치/실행 방법이 포함됨",
+    "모든 파일이 프로젝트 루트 또는 표준 디렉토리(public, src) 아래에 위치하여 향후 기능 확장이 용이한 구조"
+  ]
+}

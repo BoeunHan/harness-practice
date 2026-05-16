@@ -1,7 +1,8 @@
+import json
 from pathlib import Path
 
 
-def find_project_folder_from_docs(project_name: str) -> Path | None:
+def find_project_dir_from_docs(project_name: str) -> Path | None:
     """
     docs 디렉토리 내부에서 프로젝트 폴더를 찾는다.
 
@@ -33,3 +34,62 @@ def find_project_folder_from_docs(project_name: str) -> Path | None:
                 return path
 
     return None
+
+
+def build_file_content_list(file_paths: list[Path]) -> list[dict]:
+    """
+    파일 경로 리스트를 받아 각 파일의 내용을 반환한다.
+
+    Args:
+        file_paths: 파일 경로 리스트
+
+    Returns:
+        파일 내용 객체 리스트
+    """
+    file_contents = []
+
+    for file_path in file_paths:
+        content = read_file_content(file_path)
+        file_contents.append({"path": str(file_path), "content": content})
+
+    return file_contents
+
+
+def read_file_content(file_path: Path) -> str:
+    """
+    파일 내용을 읽어서 반환한다.
+
+    Args:
+        file_path: 읽을 파일 경로
+
+    Returns:
+        파일 내용 문자열
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"❌ 파일을 읽는 중 오류 발생: {file_path} - {e}")
+        return ""
+
+
+def load_json_file(file_path: str | Path) -> dict:
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    except FileNotFoundError:
+        raise Exception(f"❌ 파일을 찾을 수 없습니다: {file_path}")
+
+    except json.JSONDecodeError:
+        raise Exception(f"❌ JSON 디코딩 오류: {file_path}")
+
+
+def write_json_file(file_path: str | Path, data: dict) -> None:
+    file_path = Path(file_path)
+
+    # 디렉토리 없으면 생성
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
