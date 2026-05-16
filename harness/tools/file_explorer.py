@@ -93,3 +93,22 @@ def write_json_file(file_path: str | Path, data: dict) -> None:
 
     with file_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def apply_app_changes(file_path: Path, new_content: str) -> None:
+    """
+    파일에 새로운 내용을 작성한다.
+
+    Args:
+        file_path: 변경할 파일 경로
+        new_content: 새로 작성할 내용
+    """
+
+    base_app_dir = Path("app")
+    full_file_path = base_app_dir / file_path
+
+    try:
+        with open(full_file_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+    except Exception as e:
+        raise Exception(f"❌ 파일을 쓰는 중 오류 발생: {full_file_path} - {e}")

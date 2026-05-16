@@ -59,4 +59,4 @@ File Contents:
 
 """
     
-    return run_claude(prompt)
+    return json.loads(run_claude(prompt))

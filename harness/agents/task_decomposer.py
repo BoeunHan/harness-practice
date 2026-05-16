@@ -1,3 +1,4 @@
+import json
 from tools.claude import run_claude
 
 
@@ -25,6 +26,7 @@ Plan:
 - 지나치게 거대한 task를 만들지 않는다.
 - 실행 가능한 수준까지 구체화한다.
 - 결과는 JSON 형식으로 반환한다.
+- 모든 Task id는 다음 형식을 따른다: t{{숫자}}_{{설명}} 예: t1_example_task
 
 반환 형식:
 {{
@@ -41,4 +43,4 @@ Plan:
 
 """
 
-    return run_claude(prompt)
+    return json.loads(run_claude(prompt))

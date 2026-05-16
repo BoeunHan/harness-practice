@@ -1,4 +1,3 @@
-import json
 import subprocess
 import threading
 import re
@@ -7,7 +6,7 @@ from tools.spinner import spinner
 
 
 # claude code cli wrapper
-def run_claude(prompt: str) -> dict:
+def run_claude(prompt: str) -> str:
     stop_event = threading.Event()
 
     thread = threading.Thread(target=spinner, args=(stop_event,))
@@ -28,12 +27,12 @@ def run_claude(prompt: str) -> dict:
         thread.join()
 
     if result.stderr:
-        raise Exception(result.stderr)
+        raise Exception("Claude error: " + result.stderr)
 
-    return parse_claude_json(result.stdout.strip())
+    return normalize_claude_response(result.stdout.strip())
 
 
-def parse_claude_json(text: str) -> dict:
+def normalize_claude_response(text: str) -> str:
     # ```json 제거
     text = re.sub(r"```json|```", "", text).strip()
 
@@ -41,4 +40,4 @@ def parse_claude_json(text: str) -> dict:
     start = text.find("{")
     end = text.rfind("}") + 1
 
-    return json.loads(text[start:end])
+    return text[start:end]
