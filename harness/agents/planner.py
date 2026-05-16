@@ -6,7 +6,7 @@ from tools.claude import run_claude
 # fmt: off
 def planner_agent(target: dict, file_contents: list[dict]) -> dict:
     prompt = f"""
-너는 프로젝트 전체 설계를 담당하는 Planner Agent이다.
+너는 프로젝트 전체 설계를 담당하는 Planner이다.
 
 사용자의 목표, 현재 프로젝트 상태, 관련 파일 내용을 기반으로
 전체 구현 계획을 수립한다.
@@ -14,7 +14,7 @@ def planner_agent(target: dict, file_contents: list[dict]) -> dict:
 Target Document:
 {json.dumps(target, ensure_ascii=False, indent=2)}
 
-File Contents:
+Current File Contents:
 {json.dumps(file_contents, ensure_ascii=False, indent=2)}
 
 
@@ -30,13 +30,15 @@ File Contents:
 - 추상적인 설명보다 구체적인 작업 중심으로 작성한다.
 - 기존 구조를 최대한 존중한다.
 - 필요한 파일만 포함한다.
-- 결과는 반드시 JSON 형식으로 반환한다.
 - tech_stack은 절대적인 기준이며 변경하거나 해석하지 않는다.
 - file_contents가 비어 있는 경우 이는 신규 프로젝트 초기 상태로 간주한다.
 - 기존 파일을 요청하거나 가정하지 않는다.
 - 추가 정보 요청 또는 질문을 하지 않는다.
 - 모든 계획은 단일 응답으로 완결되어야 한다.
 - 모든 결정은 입력 데이터에 직접 존재하는 정보를 기반으로 한다.
+- 결과는 반드시 JSON 형식으로 반환한다.
+- JSON 외의 다른 설명은 포함하지 않는다.
+- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
 
 반환 형식:
 {{

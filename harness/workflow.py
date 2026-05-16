@@ -38,9 +38,7 @@ def run_workflow(project_dir: Path):
 
         print("Task 분해가 완료되었습니다. : " + "02_tasks.json")
 
-        tasks = load_json_file(project_dir / "02_tasks.json")
-        for task in tasks["tasks"][1:]:
-            print("task id: ", task["id"])
+        for task in tasks["tasks"]:
             if not get_user_confirm_input(f"{task['id']} Execution을 진행할까요?"):
                 print("🟥 워크플로우가 중단되었습니다.")
                 return

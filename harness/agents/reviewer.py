@@ -6,7 +6,7 @@ from tools.claude import run_claude
 # fmt: off
 def reviewer_agent(task, files):
     prompt = f"""
-너는 구현 결과를 검토하는 Reviewer Agent이다.
+너는 구현 결과를 검토하는 Reviewer이다.
 
 변경 사항이 Task 요구사항과 Acceptance Criteria를 정확히 만족하는지 검증한다.
 
@@ -34,7 +34,9 @@ Changed Files:
 - 각 문제에 대한 수정 방향을 포함한다.
 - 추측 기반 판단은 금지한다.
 - rejected인 경우 최소 하나 이상의 retry_issues를 포함한다.
-- 결과는 JSON 형식으로 반환한다.
+- 결과는 반드시 JSON 형식으로 반환한다.
+- JSON 외의 다른 설명은 포함하지 않는다.
+- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
 
 반환 형식:
 {{

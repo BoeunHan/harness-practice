@@ -6,15 +6,16 @@ from tools.claude import run_claude
 # fmt: off
 def executor_agent(task: dict, file_contents: list[dict]) -> dict:
     prompt = f"""
-너는 실제 구현을 수행하는 Executor Agent이다.
+너는 파일 변경 명세를 생성하는 Executor이다.
 
 주어진 task와 관련 파일 내용을 기반으로
-필요한 코드 수정 또는 생성 작업을 수행한다.
+필요한 코드 수정 또는 생성 명세를 제공한다.
+너가 반환한 JSON은 실제 파일 내용을 변경하는 데 사용된다.
 
 Current Task:
 {task}
 
-File Contents:
+Current File Contents:
 {file_contents}
 
 역할:
@@ -32,7 +33,6 @@ File Contents:
 - 비효율적인 구현은 피한다.
 - 구현 불가능한 경우 명확한 이유를 반환한다.
 - 명시되지 않은 요구사항은 최소한의 안전한 가정만 사용한다.
-- 결과는 JSON 형식으로 반환한다.
 - 수정 시 기존 코드와의 호환성을 유지하며, 변경 영향 범위를 고려한다.
 - 파일 수정 시 전체 파일 내용을 기준으로 반환한다.
 - 부분 patch가 아닌 완전한 파일 콘텐츠를 제공한다.
@@ -40,6 +40,9 @@ File Contents:
 - 기존 파일은 modified_files에, 새로 생성하는 파일은 created_files에 포함한다.
 - implementation_notes에 구현 과정에서 발생한 주요 결정사항, 가정, 또는 제한사항을 기록한다.
 - **file path는 프로젝트 루트 기준 상대 경로로 제공한다.**
+- 결과는 반드시 JSON 형식으로 반환한다.
+- JSON 외의 다른 설명은 포함하지 않는다.
+- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
 
 반환 형식:
 {{
@@ -79,7 +82,6 @@ def sanitize_executor_result(result: dict) -> dict:
 def normalize_path(path: str) -> str:
     """
     LLM이 반환한 file path를 프로젝트 기준 상대경로로 정규화
-    - 앞쪽 /, \ 제거
     - app/ prefix 제거
     """
     # 1) 앞쪽 슬래시 제거

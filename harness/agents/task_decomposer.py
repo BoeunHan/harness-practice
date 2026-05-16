@@ -5,7 +5,7 @@ from tools.claude import run_claude
 # fmt: off
 def task_decomposer_agent(plan: dict) -> dict:
     prompt = f"""
-너는 작업을 실행 가능한 단위로 분해하는 Task Decomposer Agent이다.
+너는 작업을 실행 가능한 단위로 분해하는 Task Decomposer이다.
 설계 문서를 기반으로 실제 실행 가능한 task 목록으로 분해한다.
 
 Plan:
@@ -25,8 +25,11 @@ Plan:
 - dependency cycle을 만들지 않는다.
 - 지나치게 거대한 task를 만들지 않는다.
 - 실행 가능한 수준까지 구체화한다.
-- 결과는 JSON 형식으로 반환한다.
 - 모든 Task id는 다음 형식을 따른다: t{{숫자}}_{{설명}} 예: t1_example_task
+- 결과는 반드시 JSON 형식으로 반환한다.
+- JSON 외의 다른 설명은 포함하지 않는다.
+- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
+
 
 반환 형식:
 {{

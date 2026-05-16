@@ -1,3 +1,4 @@
+from datetime import datetime
 import subprocess
 import threading
 import re
@@ -29,6 +30,7 @@ def run_claude(prompt: str) -> str:
     if result.stderr:
         raise Exception("Claude error: " + result.stderr)
 
+    write_debug_files(prompt, result.stdout.strip())
     return normalize_claude_response(result.stdout.strip())
 
 
@@ -41,3 +43,16 @@ def normalize_claude_response(text: str) -> str:
     end = text.rfind("}") + 1
 
     return text[start:end]
+
+
+def write_debug_files(prompt: str, response: str):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    write_file("harness/debug/claude_prompt.txt", f"[{timestamp}]\n\n {prompt}")
+    write_file(
+        "harness/debug/claude_raw_response.txt", f"[{timestamp}]\n\n {response.strip()}"
+    )
+
+
+def write_file(filePath: str, text: str):
+    with open(filePath, "w", encoding="utf-8") as f:
+        f.write(text)
