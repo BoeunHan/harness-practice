@@ -110,6 +110,8 @@ def apply_app_changes(file_path: Path, new_content: str) -> None:
     base_app_dir = Path("app")
     full_file_path = base_app_dir / file_path
 
+    full_file_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
         with open(full_file_path, "w", encoding="utf-8") as f:
             f.write(new_content)

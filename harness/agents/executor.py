@@ -39,7 +39,7 @@ File Contents:
 - acceptance_criteria를 반드시 충족하도록 구현한다.
 - 기존 파일은 modified_files에, 새로 생성하는 파일은 created_files에 포함한다.
 - implementation_notes에 구현 과정에서 발생한 주요 결정사항, 가정, 또는 제한사항을 기록한다.
-- file path는 프로젝트 루트 기준 상대 경로로 제공한다.
+- **file path는 프로젝트 루트 기준 상대 경로로 제공한다.**
 
 반환 형식:
 {{
@@ -62,5 +62,33 @@ File Contents:
 }}
 
 """
+    result = json.loads(run_claude(prompt))
+    result = sanitize_executor_result(result)
+    return result
 
-    return json.loads(run_claude(prompt))
+
+def sanitize_executor_result(result: dict) -> dict:
+    for f in result.get("modified_files", []):
+        f["path"] = normalize_path(f["path"])
+
+    for f in result.get("created_files", []):
+        f["path"] = normalize_path(f["path"])
+
+    return result
+
+def normalize_path(path: str) -> str:
+    """
+    LLM이 반환한 file path를 프로젝트 기준 상대경로로 정규화
+    - 앞쪽 /, \ 제거
+    - app/ prefix 제거
+    """
+    # 1) 앞쪽 슬래시 제거
+    path = path.lstrip("/\\")
+
+    # 2) app/ prefix 제거
+    if path.startswith("app/"):
+        path = path[len("app/"):]
+    elif path.startswith("app\\"):
+        path = path[len("app\\"):]
+
+    return path
