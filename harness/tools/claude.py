@@ -2,7 +2,7 @@ import subprocess
 import threading
 import re
 
-from tools.spinner import spinner
+from tools.cli import spinner
 
 
 # claude code cli wrapper
