@@ -1,0 +1,116 @@
+{
+  "tasks": [
+    {
+      "id": "setup-config-files",
+      "description": "프로젝트 메타데이터와 빌드 설정 파일 생성 (package.json, tsconfig.json, vite.config.ts)",
+      "dependencies": [],
+      "related_files": [
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts"
+      ],
+      "acceptance_criteria": [
+        "package.json에 React, TypeScript, Vite 및 관련 의존성 포함",
+        "tsconfig.json이 target: ES2020, jsx: react-jsx 등으로 설정",
+        "vite.config.ts가 React 플러그인 포함 및 포트 설정"
+      ]
+    },
+    {
+      "id": "setup-html-entry",
+      "description": "애플리케이션 진입점 HTML 파일 생성",
+      "dependencies": [],
+      "related_files": [
+        "index.html"
+      ],
+      "acceptance_criteria": [
+        "index.html에 id='root'인 div 요소 포함",
+        "src/index.tsx를 모듈로 로드하는 script 태그 포함",
+        "기본 메타 태그 및 제목 설정"
+      ]
+    },
+    {
+      "id": "setup-react-app",
+      "description": "React 애플리케이션 진입점 및 루트 컴포넌트 생성",
+      "dependencies": [],
+      "related_files": [
+        "src/index.tsx",
+        "src/App.tsx",
+        "src/App.css"
+      ],
+      "acceptance_criteria": [
+        "src/index.tsx에서 React.StrictMode로 App 컴포넌트 마운트",
+        "src/App.tsx가 기본 레이아웃 및 타입 정의 포함",
+        "src/App.css에 기본 스타일링 적용",
+        "TypeScript 타입 검사 오류 없음"
+      ]
+    },
+    {
+      "id": "setup-project-files",
+      "description": "환경 설정 템플릿, gitignore, 프로젝트 문서 생성",
+      "dependencies": [],
+      "related_files": [
+        ".env.example",
+        ".gitignore",
+        "README.md"
+      ],
+      "acceptance_criteria": [
+        ".gitignore가 node_modules, dist, .env, 환경 관련 파일 포함",
+        "README.md에 프로젝트 개요, 설치 방법, 실행 방법 문서화",
+        ".env.example에 환경 변수 템플릿 포함"
+      ]
+    },
+    {
+      "id": "install-dependencies",
+      "description": "npm install로 프로젝트 의존성 설치",
+      "dependencies": [
+        "setup-config-files"
+      ],
+      "related_files": [
+        "package.json"
+      ],
+      "acceptance_criteria": [
+        "npm install 완료 후 node_modules 디렉토리 생성",
+        "package-lock.json 생성",
+        "모든 의존성이 정상적으로 설치"
+      ]
+    },
+    {
+      "id": "verify-dev-environment",
+      "description": "개발 서버 실행 및 애플리케이션 렌더링 확인",
+      "dependencies": [
+        "install-dependencies",
+        "setup-react-app",
+        "setup-html-entry"
+      ],
+      "related_files": [
+        "src/index.tsx",
+        "src/App.tsx",
+        "index.html",
+        "vite.config.ts"
+      ],
+      "acceptance_criteria": [
+        "npm run dev로 개발 서버 정상 실행",
+        "브라우저에서 App 컴포넌트 정상 렌더링",
+        "TypeScript 컴파일 오류 없음",
+        "Hot Module Replacement 정상 작동"
+      ]
+    },
+    {
+      "id": "verify-production-build",
+      "description": "프로덕션 빌드 검증",
+      "dependencies": [
+        "install-dependencies"
+      ],
+      "related_files": [
+        "package.json",
+        "vite.config.ts",
+        "tsconfig.json"
+      ],
+      "acceptance_criteria": [
+        "npm run build 완료 후 dist 디렉토리 생성",
+        "빌드 산출물(index.html, js, css 등) 생성",
+        "빌드 오류 없음"
+      ]
+    }
+  ]
+}

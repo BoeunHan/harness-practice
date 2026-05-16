@@ -1,0 +1,73 @@
+{
+  "goal": "React + TypeScript 기반의 현대적 웹 애플리케이션 초기 프로젝트를 구성하고, 즉시 개발 가능한 상태로 세팅",
+  "plan_summary": "Vite를 빌드 도구로 사용하여 React + TypeScript 프로젝트를 초기화합니다. 프로젝트 메타데이터, 빌드 설정, TypeScript 설정, 진입점 파일, 기본 컴포넌트, 그리고 문서를 포함한 완전한 프로젝트 구조를 생성합니다. 향후 컴포넌트, 페이지, 유틸리티 추가가 용이하도록 설계합니다.",
+  "constraints": [
+    "React와 TypeScript는 고정 기술 스택",
+    "현대적 빌드 도구(Vite) 기반으로 설계",
+    "신규 프로젝트이므로 최소한의 필수 파일만 포함",
+    "모든 파일은 실행 가능하고 검증 가능한 상태로 작성",
+    "향후 기능 확장을 위한 확장성 있는 구조 유지"
+  ],
+  "file_inventory": [
+    {
+      "path": "package.json",
+      "action": "create",
+      "reason": "프로젝트 메타데이터, npm 스크립트(dev, build, preview), React, TypeScript, Vite 및 관련 의존성 정의"
+    },
+    {
+      "path": "tsconfig.json",
+      "action": "create",
+      "reason": "TypeScript 컴파일 옵션 설정 (target: ES2020, jsx: react-jsx, module resolution 등)"
+    },
+    {
+      "path": "vite.config.ts",
+      "action": "create",
+      "reason": "Vite 빌드 도구 설정 (React 플러그인, 포트, 빌드 옵션 등)"
+    },
+    {
+      "path": "index.html",
+      "action": "create",
+      "reason": "애플리케이션 진입점 HTML 파일 (root div, src/index.tsx 스크립트 로드)"
+    },
+    {
+      "path": "src/index.tsx",
+      "action": "create",
+      "reason": "React 애플리케이션 진입점 (React.StrictMode, App 컴포넌트 마운트)"
+    },
+    {
+      "path": "src/App.tsx",
+      "action": "create",
+      "reason": "루트 App 컴포넌트 (기본 레이아웃, 라우팅 구조 틀 제공)"
+    },
+    {
+      "path": "src/App.css",
+      "action": "create",
+      "reason": "App 컴포넌트 기본 스타일링"
+    },
+    {
+      "path": ".gitignore",
+      "action": "create",
+      "reason": "node_modules, dist, .env, 빌드 산출물 등 버전 관리에서 제외할 파일 정의"
+    },
+    {
+      "path": "README.md",
+      "action": "create",
+      "reason": "프로젝트 개요, 설치 방법, 개발 서버 실행 방법, 빌드 방법 문서화"
+    },
+    {
+      "path": ".env.example",
+      "action": "create",
+      "reason": "환경 변수 템플릿 (향후 설정값 관리를 위한 기반)"
+    }
+  ],
+  "acceptance_criteria": [
+    "npm install로 모든 의존성이 정상 설치되는가?",
+    "npm run dev로 개발 서버가 정상 실행되는가?",
+    "npm run build로 프로덕션 빌드가 정상 완료되는가?",
+    "src/ 디렉토리가 components, pages, hooks, utils 등으로 확장 가능한 구조인가?",
+    "TypeScript 타입 검사가 정상 작동하는가?",
+    "기본 App 컴포넌트가 브라우저에 정상 렌더링되는가?",
+    ".gitignore가 node_modules, dist, 환경 변수 파일 등을 포함하는가?",
+    "README.md에 프로젝트 설정 및 실행 방법이 명확히 문서화되어 있는가?"
+  ]
+}
