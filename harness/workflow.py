@@ -88,28 +88,38 @@ def run_workflow(project_dir: Path):
                     break
 
                 print(f"❌ 검증 실패: {', '.join(failed_validations)}")
-
                 retry = get_user_confirm_input(
-                    "코드를 수정하고 Y를 입력해 검증을 다시 시도하세요."
+                    "검증을 재시도하려면 Y, 건너뛰려면 N을 입력하세요."
                 )
 
                 if not retry:
-                    print("🟥 검증 단계에서 워크플로우 종료")
-                    return
+                    print("검증을 수동 건너뛰기하였습니다.")
+                    break
 
             if not get_user_confirm_input(f"{task['id']} Review를 진행할까요?"):
                 print("🟥 워크플로우가 중단되었습니다.")
                 return
 
-            print(f"4️⃣  Reviewing task: {task['id']}")
+            while True:
+                print(f"4️⃣  Reviewing task: {task['id']}")
 
-            changed_file_contents = build_app_file_content_list(changed_files)
+                changed_file_contents = build_app_file_content_list(changed_files)
 
-            review_result = reviewer_agent(task, changed_file_contents)
-            review_result_path = project_dir / f"04_review_{task['id']}.json"
-            write_json_file(review_result_path, review_result)
+                review_result = reviewer_agent(task, changed_file_contents)
+                review_result_path = project_dir / f"04_review_{task['id']}.json"
+                write_json_file(review_result_path, review_result)
 
-            print(f"리뷰가 생성되었습니다. : {review_result_path}")
+                print(f"리뷰가 생성되었습니다. : {review_result_path}")
+
+                if review_result["result"] == "passed":
+                    print("✅ 리뷰를 통과했습니다.")
+                    break
+
+                retry = get_user_confirm_input("리뷰를 다시 요청할까요? (Y/N)")
+
+                if not retry:
+                    print("리뷰를 수동 건너뛰기하였습니다.")
+                    break
 
     except Exception as e:
         print("❌ 워크플로우 실행 중 오류 발생")
