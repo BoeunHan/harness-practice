@@ -1,11 +1,11 @@
 import traceback
 from pathlib import Path
 
-from harness.agents.executor import executor_agent
-from harness.agents.planner import planner_agent
-from harness.agents.reviewer import reviewer_agent
-from harness.agents.task_decomposer import task_decomposer_agent
-from tools.cli import get_user_confirm_input
+from agents.executor import executor_agent
+from agents.planner import planner_agent
+from agents.reviewer import reviewer_agent
+from agents.task_decomposer import task_decomposer_agent
+from tools.cli import get_user_confirm_input, run_command
 from tools.file_explorer import (
     apply_app_changes,
     build_app_file_content_list,
