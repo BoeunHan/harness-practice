@@ -14,7 +14,7 @@ def planner_agent(target: dict, file_contents: list[dict]) -> dict:
 Target Document:
 {json.dumps(target, ensure_ascii=False, indent=2)}
 
-Current File Contents:
+Related File Contents:
 {json.dumps(file_contents, ensure_ascii=False, indent=2)}
 
 

@@ -15,7 +15,7 @@ def executor_agent(task: dict, file_contents: list[dict]) -> dict:
 Current Task:
 {task}
 
-Current File Contents:
+Related File Contents:
 {file_contents}
 
 역할:
