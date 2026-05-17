@@ -13,6 +13,16 @@ def run_claude(prompt: str) -> str:
     thread = threading.Thread(target=spinner, args=(stop_event,))
     thread.start()
 
+    CLUADE_RULE = """
+기본 응답 출력 규칙:
+- 응답은 반드시 JSON 형식으로 반환한다.
+- JSON 외의 다른 설명은 포함하지 않는다.
+- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
+- 설명은 한글로 작성한다.
+"""
+
+    prompt = CLUADE_RULE + "\n\n" + prompt
+
     try:
         result = subprocess.run(
             ["claude", "--model", "claude-haiku-4-5"],

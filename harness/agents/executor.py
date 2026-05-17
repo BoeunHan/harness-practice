@@ -40,9 +40,7 @@ Related File Contents:
 - 기존 파일은 modified_files에, 새로 생성하는 파일은 created_files에 포함한다.
 - implementation_notes에 구현 과정에서 발생한 주요 결정사항, 가정, 또는 제한사항을 기록한다.
 - **file path는 프로젝트 루트 기준 상대 경로로 제공한다.**
-- 결과는 반드시 JSON 형식으로 반환한다.
-- JSON 외의 다른 설명은 포함하지 않는다.
-- 설명이 필요한 경우 JSON 내 적절한 위치에 포함한다.
+- 프로젝트 루트는 app/ 디렉토리이다.
 
 반환 형식:
 {{
