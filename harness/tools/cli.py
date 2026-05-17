@@ -1,5 +1,6 @@
 import itertools
 import time
+import subprocess
 
 from tools.file_explorer import find_project_dir_from_docs
 
@@ -40,7 +41,7 @@ def get_user_confirm_input(message: str, enterDefault: bool = True) -> bool:
         True = 진행, False = 중단
     """
 
-    suffix = " [Y/N] (디폴트는 Y): " if enterDefault else " [y/N] (디폴트는 N): "
+    suffix = " [Y/N] (디폴트는 Y): " if enterDefault else " [Y/N] (디폴트는 N): "
 
     while True:
         user_input = input(f"\n{message}{suffix}").strip().lower()
@@ -56,3 +57,18 @@ def get_user_confirm_input(message: str, enterDefault: bool = True) -> bool:
             return False
 
         print("👉 Y 또는 N으로 입력해주세요.")
+
+
+def run_command(command: str, cwd=None):
+    ALLOWED_COMMANDS = ["npm install", "npm run typecheck", "npm run build"]
+
+    if command not in ALLOWED_COMMANDS:
+        raise Exception(f"실행 금지된 명령어입니다. : {command}")
+
+    result = subprocess.run(
+        command,
+        shell=True,
+        cwd=cwd,
+    )
+
+    return result.returncode == 0

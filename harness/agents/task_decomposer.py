@@ -9,7 +9,7 @@ def task_decomposer_agent(plan: dict) -> dict:
 설계 문서를 기반으로 실제 실행 가능한 task 목록으로 분해한다.
 
 Plan:
-{plan}
+{json.dumps(plan, ensure_ascii=False, indent=2)}
 
 역할:
 - 작업을 작은 단위로 분리한다.

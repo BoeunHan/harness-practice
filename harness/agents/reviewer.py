@@ -12,10 +12,10 @@ def reviewer_agent(task, files):
 
 
 Task:
-{task}
+{json.dumps(task, ensure_ascii=False, indent=2)}
 
 Changed Files:
-{files}
+{json.dumps(files, ensure_ascii=False, indent=2)}
 
 
 역할:

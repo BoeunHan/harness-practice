@@ -13,10 +13,10 @@ def executor_agent(task: dict, file_contents: list[dict]) -> dict:
 너가 반환한 JSON은 실제 파일 내용을 변경하는 데 사용된다.
 
 Current Task:
-{task}
+{json.dumps(task, ensure_ascii=False, indent=2)}
 
 Related File Contents:
-{file_contents}
+{json.dumps(file_contents, ensure_ascii=False, indent=2)}
 
 역할:
 - task 요구사항을 구현한다.

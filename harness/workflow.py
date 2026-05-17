@@ -76,6 +76,27 @@ def run_workflow(project_dir: Path):
             print(f"변경된 파일 경로들: {changed_files}")
             print(f"파일 변경사항이 반영되었습니다. : {execution_result_path}")
 
+            if not get_user_confirm_input("검증을 진행할까요?"):
+                print("🟥 워크플로우가 중단되었습니다.")
+                return
+
+            while True:
+                failed_validations = run_project_validations(changed_files)
+
+                if not failed_validations:
+                    print("✅ 모든 검증을 통과했습니다.")
+                    break
+
+                print(f"❌ 검증 실패: {', '.join(failed_validations)}")
+
+                retry = get_user_confirm_input(
+                    "코드를 수정하고 Y를 입력해 검증을 다시 시도하세요."
+                )
+
+                if not retry:
+                    print("🟥 검증 단계에서 워크플로우 종료")
+                    return
+
             if not get_user_confirm_input(f"{task['id']} Review를 진행할까요?"):
                 print("🟥 워크플로우가 중단되었습니다.")
                 return
@@ -95,3 +116,38 @@ def run_workflow(project_dir: Path):
         print(f"오류 메시지: {e}")
         print("=" * 50)
         print(traceback.format_exc())
+
+
+def run_project_validations(changed_files):
+    app_dir = "app"
+
+    failed_validations = []
+
+    if "package.json" in changed_files:
+        success = run_command("npm install", app_dir)
+        if not success:
+            failed_validations.append("install")
+    else:
+        pass
+
+    try:
+        package_json = load_json_file(f"{app_dir}/package.json")
+        scripts = package_json.get("scripts", {})
+    except Exception:
+        scripts = {}
+
+    if "typecheck" in scripts:
+        success = run_command("npm run typecheck", app_dir)
+        if not success:
+            failed_validations.append("typecheck")
+    else:
+        pass
+
+    if "build" in scripts:
+        success = run_command("npm run build", app_dir)
+        if not success:
+            failed_validations.append("build")
+    else:
+        failed_validations.append("build")
+
+    return failed_validations
