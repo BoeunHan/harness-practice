@@ -2,8 +2,6 @@ import itertools
 import time
 import subprocess
 
-from tools.file_explorer import find_project_dir_from_docs
-
 
 def spinner(stop_event):
     for dots in itertools.cycle(["⚙️", "⚙️  🔨", "⚙️  🔨 🔥"]):
@@ -12,21 +10,6 @@ def spinner(stop_event):
         print(f"\r\033[KLoading {dots}", end="", flush=True)
         time.sleep(0.6)
     print("\r", end="")
-
-
-def get_project_select_input():
-    print("\n========= AI HARNESS INPUT =========")
-
-    project = input("\n🛠️  시작할 프로젝트 이름을 입력하세요:").strip()
-    project_dir = find_project_dir_from_docs(project)
-
-    while not project_dir:
-        print(f"❌ docs에서 '{project}' 프로젝트를 찾을 수 없습니다.")
-        print("❌ 프로젝트 폴더를 생성하거나 target.json을 생성해주세요.")
-        project = input("\n🛠️  시작할 프로젝트 이름을 입력하세요:").strip()
-        project_dir = find_project_dir_from_docs(project)
-
-    return {"project": project, "project_dir": project_dir}
 
 
 def get_user_confirm_input(message: str, enterDefault: bool = True) -> bool:
