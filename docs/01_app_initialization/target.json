@@ -1,13 +1,32 @@
 {
-  "project_name": "app_initialization",
-  "description": "새로운 애플리케이션 프로젝트를 초기화하는 작업입니다. 기본 프로젝트 구조와 실행 환경을 구성하고, 이후 기능 개발이 가능한 상태까지 세팅하는 것을 목표로 합니다.",
-  "file_paths": [],
+  "project_name": "react_app",
+
+  "description": "Vite 기반 React + TypeScript 프로젝트를 초기화하고 dev 서버 실행이 가능한 상태까지 구성한다.",
+
   "goals": [
-    "애플리케이션 기본 디렉토리 구조 생성",
-    "실행 가능한 초기 프로젝트 환경 구성",
-    "공통 설정 파일 생성",
-    "개발에 필요한 기본 의존성 구성",
-    "향후 기능 확장이 가능한 구조 설계"
+    "React + TypeScript 프로젝트 초기화",
+    "Vite 기반 개발 서버 실행 가능 상태 구성",
+    "기본 프로젝트 구조 생성"
   ],
-  "tech_stack": ["React", "Typescript"]
+
+  "scope": "frontend",
+
+  "tech_stack": {
+    "framework": "react",
+    "language": "typescript",
+    "bundler": "vite"
+  },
+
+  "libraries": ["react 19", "react-dom"],
+
+  "architecture": ["components", "main entry (main.tsx / App.tsx)"],
+
+  "scripts": ["dev", "build", "typecheck"],
+
+  "constraints": [
+    "src 내부에서만 코드 생성",
+    "npm install 후 npm run dev로 정상 실행 가능해야 한다",
+    "불필요한 라이브러리 추가 금지",
+    "최소 구조로 유지한다"
+  ]
 }
