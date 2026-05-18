@@ -1,10 +1,10 @@
 import traceback
 from pathlib import Path
 
-from agents.executor import executor_agent
-from agents.planner import planner_agent
-from agents.reviewer import reviewer_agent
-from agents.task_decomposer import task_decomposer_agent
+from agents.executor import run_executor_agent
+from agents.planner import run_planner_agent
+from agents.reviewer import run_reviewer_agent
+from agents.task_decomposer import run_task_decomposer_agent
 from tools.cli import get_user_confirm_input, run_command
 from tools.file_explorer import (
     apply_app_changes,
@@ -18,13 +18,8 @@ def run_workflow(project_dir: Path):
 
     try:
         print("1️⃣  Planning...")
-        target = load_json_file(project_dir / "target.json")
-        related_file_contents = build_app_file_content_list(
-            target.get("file_paths", [])
-        )
 
-        plan_result = planner_agent(target, related_file_contents)
-        write_json_file(project_dir / "01_plan.json", plan_result)
+        run_planner_agent(project_dir)
 
         print("프로젝트 설계 문서가 생성되었습니다. : " + "01_plan.json")
         if not get_user_confirm_input("Task decomposition을 진행할까요?"):
@@ -33,12 +28,12 @@ def run_workflow(project_dir: Path):
 
         print("2️⃣  Decomposing tasks...")
 
-        decompose_result = task_decomposer_agent(plan_result)
-        write_json_file(project_dir / "02_tasks.json", decompose_result)
+        run_task_decomposer_agent(project_dir)
 
         print("Task 분해가 완료되었습니다. : " + "02_tasks.json")
 
-        tasks = decompose_result.get("tasks", [])
+        tasks = load_json_file(project_dir / "02_tasks.json").get("tasks", [])
+
         for task in tasks:
             if not get_user_confirm_input(f"{task['id']} Execution을 진행할까요?"):
                 print("🟥 워크플로우가 중단되었습니다.")
@@ -46,39 +41,19 @@ def run_workflow(project_dir: Path):
 
             print(f"3️⃣  Executing task: {task['id']}")
 
-            related_files = list(task.get("related_files", []))
-            for task_id in task.get("dependencies", []):
-                parent_task = next(
-                    (task for task in tasks if task["id"] == task_id),
-                    None,
-                )
-                if parent_task:
-                    related_files.extend(parent_task.get("related_files", []))
+            run_executor_agent(project_dir, task["id"])
 
-            related_file_contents = build_app_file_content_list(related_files)
-
-            execution_result = executor_agent(task, related_file_contents)
-            execution_result_path = project_dir / f"03_execution_{task['id']}.json"
-            write_json_file(execution_result_path, execution_result)
-
-            changed_files = []
-
-            for modified in execution_result.get("modified_files", []):
-                print(f"변경된 파일: {modified['path']}")
-                apply_app_changes(modified["path"], modified["content"])
-                changed_files.append(modified["path"])
-
-            for created in execution_result.get("created_files", []):
-                print(f"생성된 파일: {created['path']}")
-                apply_app_changes(created["path"], created["content"])
-                changed_files.append(created["path"])
-
-            print(f"변경된 파일 경로들: {changed_files}")
-            print(f"파일 변경사항이 반영되었습니다. : {execution_result_path}")
+            print(f"${task['id']} 구현 작업이 완료되었습니다.")
 
             if not get_user_confirm_input("검증을 진행할까요?"):
                 print("🟥 워크플로우가 중단되었습니다.")
                 return
+
+            changed_files = load_json_file(
+                project_dir / f"03_{task['id'].split('_')[0]}_execution.json"
+            ).get("modified_files", []) + load_json_file(
+                project_dir / f"03_{task['id'].split('_')[0]}_execution.json"
+            ).get("created_files", [])
 
             while True:
                 failed_validations = run_project_validations(changed_files)
@@ -103,13 +78,12 @@ def run_workflow(project_dir: Path):
             while True:
                 print(f"4️⃣  Reviewing task: {task['id']}")
 
-                changed_file_contents = build_app_file_content_list(changed_files)
+                run_reviewer_agent(project_dir, task["id"])
+                review_result = load_json_file(
+                    project_dir / f"04_{task['id'].split('_')[0]}_review.json"
+                )
 
-                review_result = reviewer_agent(task, changed_file_contents)
-                review_result_path = project_dir / f"04_review_{task['id']}.json"
-                write_json_file(review_result_path, review_result)
-
-                print(f"리뷰가 생성되었습니다. : {review_result_path}")
+                print(f"${task['id']} 코드 리뷰가 완료되었습니다.")
 
                 if review_result["result"] == "passed":
                     print("✅ 리뷰를 통과했습니다.")
@@ -132,8 +106,8 @@ def run_project_validations(changed_files):
     app_dir = "app"
 
     failed_validations = []
-
-    if "package.json" in changed_files:
+    print(changed_files)
+    if "package.json" in changed_files or "app/package.json" in changed_files:
         success = run_command("npm install", app_dir)
         if not success:
             failed_validations.append("install")

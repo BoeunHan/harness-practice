@@ -9,7 +9,8 @@ def spinner(stop_event):
             break
         print(f"\r\033[KLoading {dots}", end="", flush=True)
         time.sleep(0.6)
-    print("\r", end="")
+    print("\r\033[K", end="", flush=True)
+    print()
 
 
 def get_user_confirm_input(message: str, enterDefault: bool = True) -> bool:

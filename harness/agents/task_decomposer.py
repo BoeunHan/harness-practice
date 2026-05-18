@@ -1,21 +1,25 @@
-import json
+from pathlib import Path
+
 from tools.claude import run_claude
 
 
 # fmt: off
-def task_decomposer_agent(plan: dict) -> dict:
+def run_task_decomposer_agent(project_dir: Path):
     prompt = f"""
 너는 작업을 실행 가능한 단위로 분해하는 Task Decomposer이다.
+
 설계 문서를 기반으로 실제 실행 가능한 task 목록으로 분해한다.
 
-Plan:
-{json.dumps(plan, ensure_ascii=False, indent=2)}
+Plan Document:
+{str(project_dir / "01_plan.json")}
+
 
 역할:
-- 작업을 작은 단위로 분리한다.
+- 설계 문서를 읽고 작업을 작은 단위로 분리한다.
 - task 간 dependency를 정의한다.
 - 안전한 실행 순서대로 정렬한다.
 - 각 task별 관련 파일을 연결한다.
+- 실행 가능한 수준까지 task를 구체화한다.
 
 규칙:
 - 각 task는 하나의 명확한 목적을 가진 논리적 변경 단위여야 한다.
@@ -25,10 +29,24 @@ Plan:
 - dependency cycle을 만들지 않는다.
 - 지나치게 거대한 task를 만들지 않는다.
 - 실행 가능한 수준까지 구체화한다.
-- 모든 Task id는 다음 형식을 따른다: t{{숫자}}_{{설명}} 예: t1_example_task
+- 모든 Task id는 다음 형식을 따른다:
+  t{{숫자}}_{{설명}}
+  예:
+  t1_initialize_project
+  t2_setup_typescript
 
+파일 생성 규칙:
+- 반드시 tasks.json 파일을 생성한다.
+- 기존 tasks.json 파일이 있다면 overwrite한다.
+- tasks.json 외의 다른 파일은 생성하지 않는다.
+- 모든 결과는 JSON 내부에 포함한다.
+- JSON 형식을 반드시 유지한다.
+- 추가 질문 없이 즉시 작업을 수행한다.
 
-반환 형식:
+파일 저장 경로:
+{str(project_dir / "02_tasks.json")}
+
+파일 형식:
 {{
   "tasks": [
     {{
@@ -38,9 +56,10 @@ Plan:
       "related_files": [],
       "acceptance_criteria": []
     }}
-  ],
+  ]
 }}
+
 
 """
 
-    return json.loads(run_claude(prompt))
+    return run_claude(prompt)

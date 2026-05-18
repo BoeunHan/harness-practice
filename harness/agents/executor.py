@@ -1,28 +1,29 @@
-import json
+from pathlib import Path
 
 from tools.claude import run_claude
 
 
 # fmt: off
-def executor_agent(task: dict, file_contents: list[dict]) -> dict:
+def run_executor_agent(project_dir: Path, task_id: str):
     prompt = f"""
-너는 파일 변경 명세를 생성하는 Executor이다.
+너는 실제 구현 작업을 수행하는 Executor이다.
 
-주어진 task와 관련 파일 내용을 기반으로
-필요한 코드 수정 또는 생성 명세를 제공한다.
-너가 반환한 JSON은 실제 파일 내용을 변경하는 데 사용된다.
+task 문서와 현재 프로젝트 파일 상태를 기반으로
+필요한 코드 구현 및 파일 수정을 수행한다.
 
-Current Task:
-{json.dumps(task, ensure_ascii=False, indent=2)}
+Task ID:
+{task_id}
 
-Related File Contents:
-{json.dumps(file_contents, ensure_ascii=False, indent=2)}
+Task Decomposition Document:
+{str(project_dir / "02_tasks.json")}
+
 
 역할:
 - task 요구사항을 구현한다.
-- 코드를 생성 및 수정한다.
+- 필요한 코드를 생성 및 수정한다.
 - 필요한 로직을 추가한다.
 - 기존 구조와의 호환성을 유지한다.
+- 실제 파일 내용을 수정한다.
 
 규칙:
 - task 범위를 벗어나지 않는다.
@@ -31,64 +32,39 @@ Related File Contents:
 - 기존 코드 스타일을 최대한 유지한다.
 - 기존 코드를 이용할 수 있는 경우 이용한다.
 - 비효율적인 구현은 피한다.
-- 구현 불가능한 경우 명확한 이유를 반환한다.
-- 명시되지 않은 요구사항은 최소한의 안전한 가정만 사용한다.
-- 수정 시 기존 코드와의 호환성을 유지하며, 변경 영향 범위를 고려한다.
-- 파일 수정 시 전체 파일 내용을 기준으로 반환한다.
-- 부분 patch가 아닌 완전한 파일 콘텐츠를 제공한다.
+- 구현 불가능한 경우 명확한 이유를 남긴다.
 - acceptance_criteria를 반드시 충족하도록 구현한다.
-- 기존 파일은 modified_files에, 새로 생성하는 파일은 created_files에 포함한다.
-- implementation_notes에 구현 과정에서 발생한 주요 결정사항, 가정, 또는 제한사항을 기록한다.
-- **file path는 프로젝트 루트 기준 상대 경로로 제공한다.**
+- 수정 시 기존 코드와의 호환성을 유지한다.
+- 변경 영향 범위를 고려한다.
+- dependency를 고려한다.
 - 프로젝트 루트는 app/ 디렉토리이다.
+- file path는 프로젝트 루트 기준 상대 경로로 작성한다. (app/ 제외)
+- 필요한 파일은 직접 읽어서 사용한다.
+- 필요한 파일만 읽는다.
+- task와 관련 없는 파일은 수정하지 않는다.
+- 수정된 파일은 modified_files에, 새로 생성하는 파일은 created_files에 포함한다.
+- implementation_notes에 구현 과정에서 발생한 주요 결정사항, 가정, 또는 제한사항을 기록한다.
+- 추가 질문 없이 즉시 작업을 수행한다.
 
-반환 형식:
+
+파일 생성 규칙:
+- 반드시 execution.json 파일을 생성한다.
+- 기존 execution.json 파일이 있다면 overwrite한다.
+- execution.json 외의 결과 파일은 생성하지 않는다.
+- 결과는 반드시 JSON 형식을 유지한다.
+
+결과 저장 경로:
+{str(project_dir / f"03_{task_id.split('_')[0]}_execution.json")}
+
+결과 파일 형식:
 {{
   "task_id": "",
-  "task_summary": "",
-  "modified_files": [
-    {{
-      "path": "",
-      "content": ""
-    }}
-  ],
-  "created_files": [
-    {{
-      "path": "",
-      "content": ""
-    }}
-  ],
-  "cleanup_candidates": [],
-  "implementation_notes": []
+  "modified_files": [],
+  "created_files": [],
+  "implementation_notes": [],
+  "issues": []
 }}
 
 """
-    result = json.loads(run_claude(prompt))
-    result = sanitize_executor_result(result)
-    return result
 
-
-def sanitize_executor_result(result: dict) -> dict:
-    for f in result.get("modified_files", []):
-        f["path"] = normalize_path(f["path"])
-
-    for f in result.get("created_files", []):
-        f["path"] = normalize_path(f["path"])
-
-    return result
-
-def normalize_path(path: str) -> str:
-    """
-    LLM이 반환한 file path를 프로젝트 기준 상대경로로 정규화
-    - app/ prefix 제거
-    """
-    # 1) 앞쪽 슬래시 제거
-    path = path.lstrip("/\\")
-
-    # 2) app/ prefix 제거
-    if path.startswith("app/"):
-        path = path[len("app/"):]
-    elif path.startswith("app\\"):
-        path = path[len("app\\"):]
-
-    return path
+    return run_claude(prompt)
