@@ -1,0 +1,64 @@
+{
+  "goal": "React + TypeScript + Vite 프로젝트를 초기화하여 npm install 후 npm run dev로 정상 실행 가능한 상태로 구성",
+  "plan_summary": "최소 구조의 Vite 기반 React 프로젝트를 구성한다. package.json에 필수 스크립트(dev, build, typecheck)를 정의하고, TypeScript 설정을 추가한 후, src 디렉토리 내에 App.tsx와 main.tsx를 작성한다. components 디렉토리는 미리 생성하여 확장 가능한 구조를 준비한다.",
+  "constraints": [
+    "React 19 와 react-dom만 사용",
+    "src 내부에서만 코드 생성",
+    "npm install 후 npm run dev로 정상 실행 가능해야 함",
+    "불필요한 라이브러리 추가 금지",
+    "최소 구조로 유지 (보일러플레이트 제거)",
+    "Vite를 번들러로 사용",
+    "TypeScript strict mode 지원"
+  ],
+  "file_inventory": [
+    {
+      "path": "app/package.json",
+      "action": "create",
+      "reason": "프로젝트 메타데이터, 의존성 관리, npm 스크립트(dev, build, typecheck) 정의"
+    },
+    {
+      "path": "app/tsconfig.json",
+      "action": "create",
+      "reason": "TypeScript 컴파일러 설정, JSX 설정, 경로 별칭 설정"
+    },
+    {
+      "path": "app/vite.config.ts",
+      "action": "create",
+      "reason": "Vite 빌드 도구 설정, React 플러그인 활성화"
+    },
+    {
+      "path": "app/index.html",
+      "action": "create",
+      "reason": "애플리케이션의 HTML 엔트리 포인트, <div id='root'> 포함"
+    },
+    {
+      "path": "app/src/main.tsx",
+      "action": "create",
+      "reason": "React 애플리케이션 진입점, ReactDOM.createRoot로 App 컴포넌트 마운트"
+    },
+    {
+      "path": "app/src/App.tsx",
+      "action": "create",
+      "reason": "루트 컴포넌트, 기본 UI 렌더링"
+    },
+    {
+      "path": "app/src/components/.gitkeep",
+      "action": "create",
+      "reason": "components 디렉토리 생성 및 버전관리, 향후 컴포넌트 작성 공간 마련"
+    },
+    {
+      "path": "app/.env.example",
+      "action": "create",
+      "reason": "환경 변수 템플릿 파일, git 추적용 (선택사항)"
+    }
+  ],
+  "acceptance_criteria": [
+    "npm install이 정상 완료되고 package-lock.json 생성됨",
+    "npm run dev로 Vite 개발 서버가 http://localhost:5173에서 정상 실행됨",
+    "npm run typecheck로 TypeScript 타입 검사 성공",
+    "npm run build로 dist 디렉토리에 번들 파일 생성됨",
+    "src 디렉토리 내에만 코드가 존재함",
+    "App.tsx에서 기본 JSX 구조(React 19 Fragment 또는 div) 렌더링됨",
+    "components 디렉토리가 존재하여 향후 확장 가능한 상태"
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "tasks": [
+    {
+      "id": "t1_setup_project_configuration",
+      "description": "프로젝트 설정 파일 생성 (package.json, tsconfig.json, vite.config.ts, .env.example)으로 빌드, 타입스크립트, Vite 환경 통합 구성",
+      "dependencies": [],
+      "related_files": [
+        "app/package.json",
+        "app/tsconfig.json",
+        "app/vite.config.ts",
+        "app/.env.example",
+        "app/.gitignore"
+      ],
+      "acceptance_criteria": [
+        "package.json에 react@19, react-dom@19, vite, @vitejs/plugin-react, typescript 포함",
+        "package.json에 dev, build, typecheck npm 스크립트 정의됨",
+        "tsconfig.json에서 strict mode, jsx='react-jsx', moduleResolution='bundler' 설정됨",
+        "vite.config.ts에서 @vitejs/plugin-react 플러그인 활성화되고 포트 5173 설정됨",
+        ".env.example 파일이 생성됨"
+      ]
+    },
+    {
+      "id": "t2_setup_html_and_directory_structure",
+      "description": "HTML 엔트리 포인트 및 프로젝트 구조 생성 (index.html, components/.gitkeep)으로 애플리케이션 로드 기점 및 확장 가능한 구조 마련",
+      "dependencies": [
+        "t1_setup_project_configuration"
+      ],
+      "related_files": [
+        "app/index.html",
+        "app/src/components/.gitkeep"
+      ],
+      "acceptance_criteria": [
+        "index.html에 <!DOCTYPE html>, <div id='root'></div>, <script type='module' src='/src/main.tsx'></script> 포함",
+        "index.html에 필수 메타 태그(charset, viewport) 포함",
+        "app/src/components 디렉토리가 생성되고 .gitkeep 파일 포함"
+      ]
+    },
+    {
+      "id": "t3_create_react_application_code",
+      "description": "React 애플리케이션 코드 생성 (main.tsx, App.tsx)으로 진입점 및 루트 컴포넌트 구현",
+      "dependencies": [
+        "t1_setup_project_configuration",
+        "t2_setup_html_and_directory_structure"
+      ],
+      "related_files": [
+        "app/src/main.tsx",
+        "app/src/App.tsx"
+      ],
+      "acceptance_criteria": [
+        "main.tsx에서 React, react-dom, App import하고 ReactDOM.createRoot로 마운트 수행",
+        "main.tsx에서 App을 React.StrictMode로 감싸서 렌더링",
+        "main.tsx 타입스크립트 strict mode 준수 (any 타입 사용 금지)",
+        "App.tsx에서 함수형 컴포넌트로 정의되고 기본 JSX 구조 렌더링",
+        "App.tsx 타입스크립트 strict mode 준수"
+      ]
+    },
+    {
+      "id": "t4_install_dependencies",
+      "description": "npm install 실행으로 package.json 기반 모든 의존성 설치 및 package-lock.json 생성",
+      "dependencies": [
+        "t1_setup_project_configuration",
+        "t2_setup_html_and_directory_structure",
+        "t3_create_react_application_code"
+      ],
+      "related_files": [
+        "app/package.json",
+        "app/package-lock.json",
+        "app/node_modules"
+      ],
+      "acceptance_criteria": [
+        "npm install 명령 정상 완료",
+        "package-lock.json 파일 생성됨",
+        "app/node_modules 디렉토리 생성됨",
+        "의존성 설치 중 에러 없음"
+      ]
+    },
+    {
+      "id": "t5_verify_and_build_project",
+      "description": "프로젝트 검증 및 빌드 수행 (npm run typecheck, npm run build)으로 타입스크립트 호환성 및 빌드 성공 확인",
+      "dependencies": [
+        "t4_install_dependencies"
+      ],
+      "related_files": [
+        "app/tsconfig.json",
+        "app/vite.config.ts",
+        "app/src/main.tsx",
+        "app/src/App.tsx",
+        "app/dist"
+      ],
+      "acceptance_criteria": [
+        "npm run typecheck 성공 (타입스크립트 에러 없음)",
+        "npm run build 성공 (dist 디렉토리 생성됨)",
+        "dist 디렉토리에 HTML, CSS, JavaScript 번들 파일 포함",
+        "빌드 결과에 에러 없음"
+      ]
+    },
+    {
+      "id": "t6_test_development_server",
+      "description": "개발 서버 실행 및 검증 (npm run dev)으로 http://localhost:5173에서 애플리케이션 정상 작동 확인",
+      "dependencies": [
+        "t5_verify_and_build_project"
+      ],
+      "related_files": [
+        "app/package.json",
+        "app/index.html",
+        "app/src/main.tsx",
+        "app/src/App.tsx"
+      ],
+      "acceptance_criteria": [
+        "npm run dev 명령으로 Vite 개발 서버 정상 시작",
+        "개발 서버가 http://localhost:5173에서 실행됨",
+        "브라우저에서 애플리케이션 정상 로드 및 렌더링",
+        "App.tsx의 콘텐츠가 브라우저에 표시됨"
+      ]
+    }
+  ]
+}
