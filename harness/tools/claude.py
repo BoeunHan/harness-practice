@@ -7,6 +7,11 @@ CLUADE_RULE = """
 공통 규칙:
 - 설명은 한글로 작성한다.
 - 작업 완료 후 즉시 종료해라.
+- 추가로 필요한 파일은 직접 읽어서 확인한다.
+
+프로젝트 규칙:
+- 프로젝트 루트는 app/ 디렉토리이다.
+
 """
 
 CLAUDE_PATH = r"C:\Users\hboeu\AppData\Roaming\npm\claude.cmd"
