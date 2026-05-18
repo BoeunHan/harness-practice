@@ -10,8 +10,6 @@ def list_project_dirs():
 
 
 def get_project_select_input():
-    print("\n========= AI HARNESS INPUT =========\n")
-
     projects = list_project_dirs()
 
     if not projects:
