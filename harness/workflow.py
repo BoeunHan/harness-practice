@@ -7,10 +7,7 @@ from agents.reviewer import run_reviewer_agent
 from agents.task_decomposer import run_task_decomposer_agent
 from tools.cli import get_user_confirm_input, run_command
 from tools.file_explorer import (
-    apply_app_changes,
-    build_app_file_content_list,
     load_json_file,
-    write_json_file,
 )
 
 
@@ -106,7 +103,6 @@ def run_project_validations(changed_files):
     app_dir = "app"
 
     failed_validations = []
-    print(changed_files)
     if "package.json" in changed_files or "app/package.json" in changed_files:
         success = run_command("npm install", app_dir)
         if not success:
