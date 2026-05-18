@@ -1,0 +1,33 @@
+{
+  "project_name": "app_initialization",
+
+  "description": "프로젝트 초기화 및 기본 실행 환경 구성",
+
+  "goals": [
+    "프로젝트 실행 가능한 초기 환경 구성",
+    "기본 구조 설정",
+    "개발 가능한 상태로 초기화"
+  ],
+
+  "scope": "frontend | backend | fullstack",
+
+  "tech_stack": {
+    "framework": "",
+    "language": "",
+    "bundler": ""
+  },
+
+  "libraries": ["react", "react-router-dom"],
+
+  "tools": ["eslint", "prettier", "vitest"],
+
+  "architecture": [""],
+
+  "scripts": ["dev", "build", "lint", "format", "test"],
+
+  "constraints": [
+    "src 내부에서만 코드 생성",
+    "실행 가능한 상태 유지",
+    "불필요한 의존성 금지"
+  ]
+}
