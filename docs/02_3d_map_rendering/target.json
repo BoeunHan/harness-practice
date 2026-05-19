@@ -1,0 +1,29 @@
+{
+  "project_name": "3d_map_rendering",
+
+  "description": "Cesium 기반 강남역 3D 지도 렌더링 초기 구성",
+
+  "goals": [
+    "Cesium 기반 3D 지도 실행",
+    "강남역 위치 중심 화면 렌더링",
+    "개발 가능한 최소 지도 환경 구성"
+  ],
+
+  "scope": "frontend",
+
+  "tech_stack": {
+    "framework": "react",
+    "language": "typescript",
+    "bundler": "vite"
+  },
+
+  "libraries": ["react", "cesium"],
+
+  "constraints": [
+    "src 내부에서만 코드 생성",
+    "실행 가능한 상태 유지",
+    "불필요한 의존성 금지",
+    "Cesium 기반 3D 지도만 우선 구현",
+    "강남역 중심 카메라 초기 위치 설정"
+  ]
+}

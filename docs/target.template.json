@@ -19,10 +19,6 @@
 
   "libraries": ["react", "react-router-dom"],
 
-  "tools": ["eslint", "prettier", "vitest"],
-
-  "architecture": [""],
-
   "scripts": ["dev", "build", "lint", "format", "test"],
 
   "constraints": [
