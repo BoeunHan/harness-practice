@@ -23,6 +23,7 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
     if (!containerRef.current) return;
 
     const token = import.meta.env.VITE_CESIUM_TOKEN;
+    Cesium.Ion.defaultAccessToken = token;
 
     const viewer = new Cesium.Viewer(containerRef.current, {
       timeline: false,
@@ -34,10 +35,21 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
       navigationHelpButton: false,
 
       baseLayer: Cesium.ImageryLayer.fromProviderAsync(
-        Cesium.IonImageryProvider.fromAssetId(2, {
-          accessToken: token,
-        }),
+        Cesium.IonImageryProvider.fromAssetId(2),
       ),
+    });
+
+    // 지형과 건물의 깊이 테스트 활성화
+    viewer.scene.globe.depthTestAgainstTerrain = true;
+
+    // 지형 입체화
+    Cesium.createWorldTerrainAsync().then((terrainProvider) => {
+      viewer.terrainProvider = terrainProvider;
+    });
+
+    // 건물 입체화
+    Cesium.createOsmBuildingsAsync().then((osmBuildings) => {
+      viewer.scene.primitives.add(osmBuildings);
     });
 
     viewer.camera.flyTo({
