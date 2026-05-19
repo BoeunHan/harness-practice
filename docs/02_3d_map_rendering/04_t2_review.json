@@ -1,0 +1,14 @@
+{
+  "task_id": "t2_create_cesium_map_component",
+  "result": "passed",
+  "issues": [],
+  "positive_notes": [
+    "모든 acceptance criteria를 충족한다.",
+    "forwardRef + useImperativeHandle 조합으로 viewer ref를 타입 안전하게 외부에 노출했다.",
+    "언마운트 시 isDestroyed() 체크 후 destroy()를 호출해 중복 destroy를 방지했다.",
+    "GANGNAM_LONGITUDE, GANGNAM_LATITUDE, INITIAL_HEIGHT를 상수로 분리해 가독성을 높였다.",
+    "불필요한 Cesium UI(timeline, animation 등)를 Viewer 옵션에서 비활성화해 깔끔한 초기 상태를 구성했다.",
+    "displayName 설정으로 React DevTools에서 컴포넌트 식별이 용이하다.",
+    "task 범위(CesiumMap.tsx 생성)를 벗어난 수정이 없다."
+  ]
+}

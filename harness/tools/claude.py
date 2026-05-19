@@ -15,6 +15,8 @@ CLUADE_RULE = """
 """
 
 CLAUDE_PATH = r"C:\Users\hboeu\AppData\Roaming\npm\claude.cmd"
+CLAUDE_HAIKU = "claude-haiku-4-5"
+CLAUDE_SONNET = "claude-sonnet-4-6"
 
 
 # claude code cli wrapper
@@ -33,7 +35,7 @@ def run_claude(prompt: str):
             [
                 CLAUDE_PATH,
                 "--model",
-                "claude-haiku-4-5",
+                CLAUDE_SONNET,
                 "--permission-mode",
                 "acceptEdits",
                 "-p",

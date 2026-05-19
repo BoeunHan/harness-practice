@@ -1,0 +1,15 @@
+{
+  "task_id": "t2_create_cesium_map_component",
+  "modified_files": [],
+  "created_files": [
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "implementation_notes": [
+    "forwardRef를 사용해 viewer ref를 외부에서 접근 가능하도록 CesiumMapHandle 인터페이스로 노출했다.",
+    "useImperativeHandle로 viewer getter를 통해 viewerRef.current를 반환한다.",
+    "카메라 초기 위치는 flyTo로 강남역(경도 127.0276, 위도 37.4979, 높이 500m)으로 설정했다.",
+    "언마운트 시 isDestroyed() 확인 후 destroy()를 호출해 중복 destroy를 방지했다.",
+    "Viewer 옵션에서 불필요한 UI 요소(timeline, animation 등)를 비활성화했다."
+  ],
+  "issues": []
+}

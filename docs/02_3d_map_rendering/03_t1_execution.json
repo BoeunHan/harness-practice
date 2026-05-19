@@ -1,0 +1,14 @@
+{
+  "task_id": "t1_setup_cesium_dependencies",
+  "modified_files": [
+    "app/package.json",
+    "app/vite.config.ts"
+  ],
+  "created_files": [],
+  "implementation_notes": [
+    "cesium 최신 안정 버전 ^1.125.0을 dependencies에 추가하였다.",
+    "vite-plugin-cesium ^1.2.22을 devDependencies에 추가하였다.",
+    "vite.config.ts에 cesium() 플러그인을 react() 뒤에 등록하였다."
+  ],
+  "issues": []
+}

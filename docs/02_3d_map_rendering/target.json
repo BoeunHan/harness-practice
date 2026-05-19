@@ -1,0 +1,48 @@
+{
+  "project_name": "3d_map_rendering",
+
+  "description": "Cesium 기반 강남역 3D 지도 렌더링 초기 구성",
+
+  "goals": [
+    "Cesium 기반 3D 지도 실행",
+    "강남역 위치 중심 화면 렌더링",
+    "React + Vite 환경에서 정상 실행",
+    "추후 GLB 모델 및 화재 이펙트 확장 가능한 구조 구성"
+  ],
+
+  "scope": "frontend",
+
+  "tech_stack": {
+    "framework": "react",
+    "language": "typescript",
+    "bundler": "vite"
+  },
+
+  "libraries": ["react", "cesium", "vite-plugin-cesium"],
+
+  "constraints": [
+    "src 내부에서만 애플리케이션 코드 생성",
+    "실행 가능한 상태 유지",
+    "불필요한 의존성 금지",
+
+    "Cesium은 npm 패키지 기반으로 사용",
+    "CDN 방식 금지",
+    "vite-plugin-cesium 사용",
+    "Cesium CSS는 import 방식 사용",
+
+    "Vite 환경과 호환되는 방식만 사용",
+    "webpack 전용 설정 금지",
+
+    "강남역 중심 카메라 초기 위치 설정",
+    "향후 GLB 3D 모델 추가 가능한 구조 유지",
+    "향후 particle/fire effect 확장 고려"
+  ],
+
+  "acceptance_criteria": [
+    "npm install 후 정상 실행 가능",
+    "npm run dev 시 오류 없이 지도 렌더링",
+    "강남역 위치로 초기 카메라 이동",
+    "Cesium Viewer 정상 표시",
+    "브라우저 console error 없음"
+  ]
+}
