@@ -1,0 +1,53 @@
+{
+  "tasks": [
+    {
+      "id": "t1_setup_terrain_and_osm_buildings",
+      "description": "CesiumMap.tsx에 지형 로드(createWorldTerrainAsync)와 3D OSM Buildings 타일셋(createOsmBuildingsAsync)을 추가하고, depthTestAgainstTerrain=true를 설정한다. Cesium.Ion.defaultAccessToken을 VITE_CESIUM_TOKEN 환경 변수로 초기화한다.",
+      "dependencies": [],
+      "related_files": [
+        "app/src/components/CesiumMap.tsx",
+        "app/.env"
+      ],
+      "acceptance_criteria": [
+        "브라우저 실행 시 위성 지도(IonImageryProvider assetId=2) 위에 3D OSM Buildings 타일셋이 정상 렌더링된다",
+        "지형 고도 정보가 로드되어 건물/지형이 지면에 밀착(Terrain Clamping) 표시된다",
+        "depthTestAgainstTerrain=true로 설정되어 카메라가 지면/건물 내부를 뚫고 들어가지 않는다",
+        "Cesium.Ion.defaultAccessToken이 VITE_CESIUM_TOKEN 환경 변수 값으로 설정된다"
+      ]
+    },
+    {
+      "id": "t2_implement_free_flight_camera_hook",
+      "description": "useFreeFlightCamera.ts Hook을 신규 생성한다. viewer 인스턴스를 인자로 받아 마우스 LEFT_DRAG Look 리매핑, WASDQE 키보드 이벤트 바인딩, viewer.clock.onTick 기반 동적 속도 감쇠 로직을 구현한다. 기존 Orbit 내비게이션 옵션(enableLook, lookEventTypes, inertiaLook)을 재정의한다.",
+      "dependencies": [],
+      "related_files": [
+        "app/src/hooks/useFreeFlightCamera.ts"
+      ],
+      "acceptance_criteria": [
+        "마우스 좌클릭 드래그 시 FPS 방식의 시선 회전이 동작한다",
+        "W/S 키로 전진/후진, A/D 키로 좌우 이동, Q/E 키로 수직 상승/하강이 동작한다",
+        "relativeHeight 10m 이하일 때 최저 이동 속도 5m/s가 보장되고, speed = Math.max(5.0, relativeHeight * 0.1) 공식에 따라 속도가 동적으로 증가한다",
+        "카메라 시선 회전 시 롤링 없이 camera.up 벡터가 지구 중심 바깥방향으로 유지된다",
+        "컴포넌트 언마운트 시 이벤트 리스너 및 onTick 구독이 정리(cleanup)된다",
+        "TypeScript 컴파일 오류 없이 빌드가 성공한다"
+      ]
+    },
+    {
+      "id": "t3_integrate_free_flight_hook_into_cesium_map",
+      "description": "CesiumMap.tsx에서 useFreeFlightCamera Hook을 호출하여 카메라 제어를 위임한다. Viewer 초기화 완료 후 Hook에 viewer 인스턴스를 전달하도록 연결한다.",
+      "dependencies": [
+        "t1_setup_terrain_and_osm_buildings",
+        "t2_implement_free_flight_camera_hook"
+      ],
+      "related_files": [
+        "app/src/components/CesiumMap.tsx",
+        "app/src/hooks/useFreeFlightCamera.ts"
+      ],
+      "acceptance_criteria": [
+        "CesiumMap.tsx에서 useFreeFlightCamera Hook이 정상 호출된다",
+        "Viewer 초기화 후 Hook에 viewer 인스턴스가 올바르게 전달된다",
+        "모든 카메라 조작(마우스 드래그, WASDQE 키보드)이 통합 환경에서 정상 동작한다",
+        "TypeScript 컴파일 오류 없이 빌드가 성공한다"
+      ]
+    }
+  ]
+}

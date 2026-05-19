@@ -1,0 +1,42 @@
+{
+  "project_name": "cesium_3d_map_navigation",
+  "description": "CesiumJS 위성 지도 레이어 위에 3D OSM Buildings 타일셋을 적층하고, 지면 밀착 시 실제 지형 대비 고도별 이동 속도가 동적으로 감쇠되는 키보드(WASDQE)+마우스(LEFT_DRAG Look) 기반의 프리플라이트(Free-flight) 카메라 조작계를 구축하는 프론트엔드 초기 환경 구성",
+  "goals": [
+    "Cesium.Ion.defaultAccessToken 연동을 통한 전 세계 3D OSM 건물(CesiumOSMBuildings) 레이어 화면 표시 및 지형 밀착(Terrain Clamping) 처리",
+    "지면 가려짐 검사(depthTestAgainstTerrain) 활성화를 통해 카메라가 지면 및 건물 내부를 뚫고 들어가는 클리핑 오류 차단",
+    "ScreenSpaceCameraController 커스텀을 통해 마우스 좌클릭 드래그 시 고정 축 회전이 아닌 카메라 중심 시선 회전(FPS Look)으로 조작계 변경",
+    "window.addEventListener(keydown/keyup) 기반 WASDQE(수평 및 수직) 키보드 인터페이스 트리거 구축",
+    "viewer.clock.onTick 프레임 이벤트 루프 내에서 절대 해수면 고도가 아닌 '지형 대비 실제 고도' 기준의 비례형 이동 속도(speed = Math.max(5.0, (cameraHeight - terrainHeight) * 0.1)) 자동 감쇠 공식 구현"
+  ],
+  "scope": "frontend",
+  "tech_stack": {
+    "framework": "React",
+    "language": "TypeScript",
+    "bundler": "Vite"
+  },
+  "libraries": ["cesium", "resium"],
+  "constraints": [
+    "모든 카메라 커스텀 이벤트 바인딩 및 3D 타일 로드 코드는 src/ 내부의 컴포넌트와 Hook 단위 내에서만 독립적으로 생성",
+    "기존 지구 중심 Orbit(궤도형) 내비게이션 옵션을 비활성화하고, 지면 비행에 최적화된 컨트롤러 변수(enableLook=true, lookEventTypes=LEFT_DRAG, inertiaLook=0.0)만 선택적으로 재정의하여 실행 가능한 상태 유지",
+    "화재 데이터 구조, 랜덤 발생 로직, 마커 표시, 파티클 이펙트 등 화재 이벤트와 관련된 모든 UI/UX 및 서비스 로직은 제외"
+  ],
+  "detailed_implementation_spec": {
+    "data_layer_step": {
+      "terrain_load": "Cesium.createWorldTerrainAsync() 함수를 호출하여 글로벌 지형 고도 정보 뷰어 바인딩",
+      "building_load": "Cesium.createOsmBuildingsAsync()를 통해 3D Tileset 인스턴스를 생성한 후 viewer.scene.primitives.add()로 적층"
+    },
+    "camera_control_step": {
+      "mouse_remapping": {
+        "event_binding": "scene.screenSpaceCameraController.lookEventTypes를 Cesium.CameraEventType.LEFT_DRAG로 변경하여 마우스 드래그로 고도 제한 없는 360도 시야 회전 구현",
+        "axis_fix": "회전 조작 시 카메라 롤링(기우뚱함)을 방지하기 위해 상향 벡터(camera.up)가 항상 지구 중심 바깥방향(Cartesian3.normalize)을 유지하도록 보정"
+      },
+      "keyboard_mapping": {
+        "pressed_keys_state": "w, a, s, d, q, e 총 6개 키의 독립적인 Boolean 누름 상태 관리 배열/객체 구축",
+        "W_S": "camera.moveForward / camera.moveBackward 호출 (바라보는 시선 기준 전진 및 후진)",
+        "A_D": "camera.moveLeft / camera.moveRight 호출 (좌우 측면 게걸음 이동)",
+        "Q_E": "camera.moveUp / camera.moveDown 호출 (수직 절대 상승 및 하강)"
+      },
+      "dynamic_speed_formula": "매 프레임 틱마다 Cesium.Cartographic.fromCartesian(camera.position)의 절대 고도에서 현 위치의 지형 고도(viewer.scene.globe.getHeight)를 뺀 '실제 상대 고도(relativeHeight)'를 계산함. relativeHeight가 10m 이하일 때는 초당 5m 최저 이동 속도를 보장하고, 고도가 높아질수록 'speed = Math.max(5.0, relativeHeight * 0.1)' 보정 계수를 이동 함수 인자값에 동적 대입"
+    }
+  }
+}
