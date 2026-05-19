@@ -1,0 +1,14 @@
+{
+  "task_id": "t3_integrate_cesium_map_into_app",
+  "modified_files": [
+    "app/src/App.tsx",
+    "app/src/App.css"
+  ],
+  "created_files": [],
+  "implementation_notes": [
+    "App.tsx의 placeholder 콘텐츠(h1, p 태그)를 CesiumMap 컴포넌트로 교체했다.",
+    "Cesium CSS는 'cesium/Build/Cesium/Widgets/widgets.css' 경로로 import했다. vite-plugin-cesium이 이 경로를 처리한다.",
+    "App.css를 전면 교체하여 html, body, #root, .App 모두 margin/padding 0, height 100%로 설정했다."
+  ],
+  "issues": []
+}

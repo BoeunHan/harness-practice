@@ -1,5 +1,5 @@
-import { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import * as Cesium from 'cesium';
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import * as Cesium from "cesium";
 
 export interface CesiumMapHandle {
   viewer: Cesium.Viewer | null;
@@ -22,21 +22,29 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const token = import.meta.env.VITE_CESIUM_TOKEN;
+
     const viewer = new Cesium.Viewer(containerRef.current, {
       timeline: false,
       animation: false,
       baseLayerPicker: false,
       geocoder: false,
-      homeButton: false,
+      homeButton: true,
       sceneModePicker: false,
       navigationHelpButton: false,
+
+      baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.IonImageryProvider.fromAssetId(2, {
+          accessToken: token,
+        }),
+      ),
     });
 
     viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(
         GANGNAM_LONGITUDE,
         GANGNAM_LATITUDE,
-        INITIAL_HEIGHT
+        INITIAL_HEIGHT,
       ),
     });
 
@@ -50,9 +58,9 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
     };
   }, []);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 });
 
-CesiumMap.displayName = 'CesiumMap';
+CesiumMap.displayName = "CesiumMap";
 
 export default CesiumMap;

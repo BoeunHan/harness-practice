@@ -1,10 +1,12 @@
-import './App.css';
+import "cesium/Build/Cesium/Widgets/widgets.css";
+import "./App.css";
+import CesiumMap from "./components/CesiumMap";
+import { JSX } from "react";
 
-function App(): React.ReactElement {
+function App(): JSX.Element {
   return (
     <div className="App">
-      <h1>Welcome to React</h1>
-      <p>This is your React application</p>
+      <CesiumMap />
     </div>
   );
 }
