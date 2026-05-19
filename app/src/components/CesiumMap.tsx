@@ -7,7 +7,7 @@ export interface CesiumMapHandle {
 
 const GANGNAM_LONGITUDE = 127.0276;
 const GANGNAM_LATITUDE = 37.4979;
-const INITIAL_HEIGHT = 500;
+const INITIAL_HEIGHT = 40;
 
 const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,12 +52,17 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
       viewer.scene.primitives.add(osmBuildings);
     });
 
-    viewer.camera.flyTo({
+    viewer.camera.setView({
       destination: Cesium.Cartesian3.fromDegrees(
         GANGNAM_LONGITUDE,
         GANGNAM_LATITUDE,
         INITIAL_HEIGHT,
       ),
+      orientation: {
+        heading: Cesium.Math.toRadians(45),
+        pitch: Cesium.Math.toRadians(-15),
+        roll: 0,
+      },
     });
 
     viewerRef.current = viewer;
