@@ -1,57 +1,50 @@
 {
-  "goal": "Cesium 기반 강남역 3D 지도 렌더링 초기 구성 완성",
-  "plan_summary": "React + Cesium을 통합하여 강남역 중심의 3D 지도를 렌더링하는 최소 구현 환경 구축. Cesium 라이브러리 추가 → CesiumMap 컴포넌트 생성 → App에 통합 → 강남역 카메라 위치 설정의 순서로 진행",
+  "goal": "Cesium 기반 강남역 3D 지도 렌더링 초기 구성 — React + Vite 환경에서 Cesium Viewer를 마운트하고 강남역 위치로 카메라를 초기화한다.",
+  "plan_summary": "1) cesium 및 vite-plugin-cesium 패키지를 설치한다. 2) vite.config.ts에 vite-plugin-cesium 플러그인을 추가한다. 3) CesiumMap 컴포넌트를 생성하여 Cesium Viewer를 초기화하고 강남역 좌표로 카메라를 설정한다. 4) App.tsx를 수정하여 CesiumMap을 렌더링한다. 5) Cesium CSS를 import한다.",
   "constraints": [
-    "src 내부에서만 코드 생성",
+    "src 내부에서만 애플리케이션 코드 생성",
     "실행 가능한 상태 유지",
     "불필요한 의존성 금지",
-    "Cesium 기반 3D 지도만 우선 구현",
-    "강남역 중심 카메라 초기 위치 설정",
-    "React 19, TypeScript, Vite 환경 기존 설정 존중"
+    "Cesium은 npm 패키지 기반으로 사용 (CDN 방식 금지)",
+    "vite-plugin-cesium 사용",
+    "Cesium CSS는 import 방식 사용",
+    "Vite 환경과 호환되는 방식만 사용 (webpack 전용 설정 금지)",
+    "강남역 중심 카메라 초기 위치 설정 (경도: 127.0276, 위도: 37.4979)",
+    "향후 GLB 3D 모델 추가 가능한 구조 유지",
+    "향후 particle/fire effect 확장 고려"
   ],
   "file_inventory": [
     {
       "path": "app/package.json",
       "action": "modify",
-      "reason": "cesium 라이브러리 의존성 추가"
+      "reason": "dependencies에 cesium 추가, devDependencies에 vite-plugin-cesium 추가"
     },
     {
-      "path": "app/src/constants/location.ts",
-      "action": "create",
-      "reason": "강남역 좌표(위도: 37.4979, 경도: 127.0276) 및 Cesium 기본 설정 상수 정의"
+      "path": "app/vite.config.ts",
+      "action": "modify",
+      "reason": "vite-plugin-cesium 플러그인을 plugins 배열에 추가"
     },
     {
       "path": "app/src/components/CesiumMap.tsx",
       "action": "create",
-      "reason": "Cesium 라이브러리를 사용한 3D 지도 렌더링 컴포넌트. 강남역 중심 카메라 초기 위치 설정, 기본 지도 레이어 로드"
-    },
-    {
-      "path": "app/src/components/CesiumMap.module.css",
-      "action": "create",
-      "reason": "CesiumMap 컴포넌트의 스타일링 (컨테이너 높이, 너비 등)"
+      "reason": "Cesium Viewer를 마운트하고 강남역 좌표로 카메라를 초기화하는 컴포넌트. 향후 GLB 모델 및 이펙트 확장을 위한 viewer ref 노출 구조로 작성"
     },
     {
       "path": "app/src/App.tsx",
       "action": "modify",
-      "reason": "CesiumMap 컴포넌트를 메인 App에 통합, 기존 Welcome 메시지 제거"
+      "reason": "기존 placeholder 콘텐츠를 제거하고 CesiumMap 컴포넌트를 렌더링. Cesium CSS import 추가"
     },
     {
       "path": "app/src/App.css",
       "action": "modify",
-      "reason": "App 컨테이너 스타일 수정 (전체 화면 높이 설정, 마진 제거 등)"
-    },
-    {
-      "path": "app/index.html",
-      "action": "modify",
-      "reason": "Cesium 자산 로드 설정 확인, body 콘텐츠 확인"
+      "reason": "지도가 전체 화면을 차지하도록 html, body, #root, .App의 margin/padding/height 초기화"
     }
   ],
   "acceptance_criteria": [
-    "npm install 후 의존성 설치 성공",
-    "npm run dev 실행 시 개발 서버 정상 시작",
-    "브라우저에서 3D 지도가 렌더링되고 강남역이 중심에 표시",
-    "TypeScript 타입 검사 에러 없음 (npm run typecheck)",
-    "브라우저 콘솔에 에러 메시지 없음",
-    "모든 코드가 src 디렉토리 내부에만 위치"
+    "npm install 후 정상 실행 가능 (cesium, vite-plugin-cesium 설치 포함)",
+    "npm run dev 시 오류 없이 지도 렌더링",
+    "초기 카메라가 강남역 위치(경도 127.0276, 위도 37.4979)로 이동",
+    "Cesium Viewer가 브라우저에 정상 표시",
+    "브라우저 console error 없음"
   ]
 }
