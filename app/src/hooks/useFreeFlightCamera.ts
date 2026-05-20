@@ -105,7 +105,7 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
         isMoving = true;
       }
 
-      if (isMoving) {
+      if (isMoving && Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
         Cesium.Cartesian3.normalize(direction, direction);
         Cesium.Cartesian3.multiplyByScalar(direction, distance, velocity);
       } else {
