@@ -1,0 +1,14 @@
+{
+  "task_id": "t1_setup_terrain_and_osm_buildings",
+  "modified_files": [
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "created_files": [],
+  "implementation_notes": [
+    "Cesium.Ion.defaultAccessToken을 VITE_CESIUM_TOKEN 환경 변수로 설정하여 IonImageryProvider fromAssetId 호출 시 accessToken 파라미터 제거",
+    "createWorldTerrainAsync()로 지형 로드 후 viewer.terrainProvider에 할당",
+    "createOsmBuildingsAsync()로 3D OSM Buildings 타일셋 로드 후 viewer.scene.primitives.add로 추가",
+    "depthTestAgainstTerrain=true 설정으로 카메라가 지면/건물을 뚫지 않도록 처리"
+  ],
+  "issues": []
+}

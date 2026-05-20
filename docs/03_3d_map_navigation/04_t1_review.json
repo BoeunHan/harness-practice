@@ -1,0 +1,14 @@
+{
+  "task_id": "t1_setup_terrain_and_osm_buildings",
+  "result": "passed",
+  "issues": [],
+  "positive_notes": [
+    "Cesium.Ion.defaultAccessToken이 import.meta.env.VITE_CESIUM_TOKEN으로 올바르게 초기화됨",
+    "createWorldTerrainAsync()로 지형 로드 후 viewer.terrainProvider에 할당하는 비동기 처리가 올바름",
+    "createOsmBuildingsAsync()로 OSM 건물 타일셋을 로드 후 viewer.scene.primitives.add()로 추가하는 구현이 올바름",
+    "depthTestAgainstTerrain=true가 Viewer 생성 직후 즉시 설정됨",
+    "baseLayer에 IonImageryProvider.fromAssetId(2) 위성 이미지를 사용하여 acceptance criteria 충족",
+    "컴포넌트 언마운트 시 viewer.destroy()로 리소스 정리가 구현됨",
+    "task 범위(t1)를 벗어난 수정 없음 — useFreeFlightCamera Hook 연동 없이 t1 범위만 구현"
+  ]
+}

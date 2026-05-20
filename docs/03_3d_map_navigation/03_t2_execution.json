@@ -1,0 +1,12 @@
+{
+  "task_id": "t2_set_initial_low_altitude_camera",
+  "modified_files": ["app/src/components/CesiumMap.tsx"],
+  "created_files": [],
+  "implementation_notes": [
+    "flyTo()를 setView()로 교체: flyTo는 애니메이션으로 이동하여 초기 시점이 우주에서 시작되지만, setView는 즉시 배치되어 앱 구동 시 바로 저고도 시점이 표시된다.",
+    "INITIAL_HEIGHT를 500m에서 40m로 변경하여 3D 건물을 근접 조망할 수 있는 저고도 시점 구현.",
+    "heading: 45도(북동 방향), pitch: -15도(약간 아래를 향함)로 설정하여 정면 빌딩 숲을 바라보는 조감 시점 구현.",
+    "roll: 0으로 고정하여 카메라 기울어짐 없이 수평을 유지."
+  ],
+  "issues": []
+}

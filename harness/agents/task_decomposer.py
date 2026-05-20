@@ -33,6 +33,8 @@ Plan Document:
 - 모든 task에 dependency를 강제하지 않는다.
 - task는 "하나의 파일 변경"이 아니라 "하나의 기능/환경 설정 단위"여야 한다.
 - task는 최소 2~5개의 파일 변경을 포함하는 수준으로 묶는다.
+- target의 목표가 누락 없이 반영되도록 한다.
+- 구현 명세는 가이드로 사용할 수 있도록 구체적으로 작성한다.
 - 모든 Task id는 다음 형식을 따른다:
   t{{숫자}}_{{설명}}
   예:
@@ -58,6 +60,7 @@ Plan Document:
       "description": "",
       "dependencies": [],
       "related_files": [],
+      "implementation_details": [],
       "acceptance_criteria": []
     }}
   ]

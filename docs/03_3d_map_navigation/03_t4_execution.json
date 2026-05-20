@@ -1,0 +1,16 @@
+{
+  "task_id": "t4_integrate_free_flight_hook_into_cesium_map",
+  "modified_files": [
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "created_files": [
+    "docs/03_3d_map_navigation/03_t4_execution.json"
+  ],
+  "implementation_notes": [
+    "useFreeFlightCamera 훅은 viewer 의존성 배열([viewer])을 사용하므로, viewer를 useRef가 아닌 useState로 관리해야 훅이 viewer 초기화 후 재실행된다.",
+    "Viewer 인스턴스 변수명을 viewer에서 cesiumViewer로 변경하여 useState의 viewer state와 충돌을 방지했다.",
+    "useFreeFlightCamera(viewer)는 useEffect 외부에서 호출하여 React 훅 규칙을 준수했다.",
+    "cleanup 시 setViewer(null)을 호출하여 훅의 cleanup 로직이 정상 동작하도록 했다."
+  ],
+  "issues": []
+}

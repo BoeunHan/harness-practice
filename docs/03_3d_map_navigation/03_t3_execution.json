@@ -1,0 +1,15 @@
+{
+  "task_id": "t3_implement_free_flight_camera_hook",
+  "modified_files": [],
+  "created_files": [
+    "app/src/hooks/useFreeFlightCamera.ts"
+  ],
+  "implementation_notes": [
+    "LEFT_DRAG를 lookEventTypes로 설정하여 FPS 방식 시선 회전 구현",
+    "WASDQE 키는 keydown/keyup 이벤트로 Set에 관리하여 동시 입력 지원",
+    "speed = Math.max(5.0, relativeHeight * 0.1) 공식으로 동적 속도 계산",
+    "onTick에서 이동 후 camera.up을 WGS84 법선 방향으로 재정렬하여 롤 방지",
+    "cleanup 함수에서 removeEventListener 및 tickListener() 호출로 구독 해제"
+  ],
+  "issues": []
+}
