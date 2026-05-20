@@ -1,5 +1,6 @@
-import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import * as Cesium from "cesium";
+import { useFreeFlightCamera } from "../hooks/useFreeFlightCamera";
 
 export interface CesiumMapHandle {
   viewer: Cesium.Viewer | null;
@@ -12,6 +13,7 @@ const INITIAL_HEIGHT = 40;
 const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
+  const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
 
   useImperativeHandle(ref, () => ({
     get viewer() {
@@ -19,13 +21,15 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
     },
   }));
 
+  useFreeFlightCamera(viewer);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     const token = import.meta.env.VITE_CESIUM_TOKEN;
     Cesium.Ion.defaultAccessToken = token;
 
-    const viewer = new Cesium.Viewer(containerRef.current, {
+    const cesiumViewer = new Cesium.Viewer(containerRef.current, {
       timeline: false,
       animation: false,
       baseLayerPicker: false,
@@ -40,19 +44,19 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
     });
 
     // 지형과 건물의 깊이 테스트 활성화
-    viewer.scene.globe.depthTestAgainstTerrain = true;
+    cesiumViewer.scene.globe.depthTestAgainstTerrain = true;
 
     // 지형 입체화
     Cesium.createWorldTerrainAsync().then((terrainProvider) => {
-      viewer.terrainProvider = terrainProvider;
+      cesiumViewer.terrainProvider = terrainProvider;
     });
 
     // 건물 입체화
     Cesium.createOsmBuildingsAsync().then((osmBuildings) => {
-      viewer.scene.primitives.add(osmBuildings);
+      cesiumViewer.scene.primitives.add(osmBuildings);
     });
 
-    viewer.camera.setView({
+    cesiumViewer.camera.setView({
       destination: Cesium.Cartesian3.fromDegrees(
         GANGNAM_LONGITUDE,
         GANGNAM_LATITUDE,
@@ -65,13 +69,15 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
       },
     });
 
-    viewerRef.current = viewer;
+    viewerRef.current = cesiumViewer;
+    setViewer(cesiumViewer);
 
     return () => {
-      if (!viewer.isDestroyed()) {
-        viewer.destroy();
+      if (!cesiumViewer.isDestroyed()) {
+        cesiumViewer.destroy();
       }
       viewerRef.current = null;
+      setViewer(null);
     };
   }, []);
 
