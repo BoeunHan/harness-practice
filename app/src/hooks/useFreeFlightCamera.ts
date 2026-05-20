@@ -21,6 +21,10 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
     // LEFT_DRAG를 Look으로 리매핑 (기본 Orbit 대신 FPS Look)
     screenSpaceCameraController.lookEventTypes = [
       { eventType: Cesium.CameraEventType.LEFT_DRAG },
+      {
+        eventType: Cesium.CameraEventType.LEFT_DRAG,
+        modifier: Cesium.KeyboardEventModifier.SHIFT,
+      },
     ];
     screenSpaceCameraController.enableLook = true;
 
