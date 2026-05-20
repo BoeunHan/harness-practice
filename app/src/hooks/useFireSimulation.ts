@@ -21,6 +21,7 @@ export function useFireSimulation({
         firePositionPool[Math.floor(Math.random() * firePositionPool.length)];
       const newFire: FireEvent = {
         id: Date.now().toString(),
+        name: `fire-${Math.floor(Math.random() * 1000)}`,
         longitude: position.longitude,
         latitude: position.latitude,
         height: position.height,

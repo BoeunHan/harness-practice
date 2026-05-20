@@ -1,0 +1,15 @@
+{
+  "task_id": "t4_implement_fire_layer_component",
+  "result": "passed",
+  "issues": [],
+  "positive_notes": [
+    "fires 배열 변경 시 removeAll 후 재생성 방식으로 viewer 엔티티를 올바르게 동기화한다.",
+    "연기 엔티티에 allowPicking: false가 entity 최상위 레벨에 설정되어 있으며, as any 캐스팅은 Cesium TypeScript 타입 정의 누락에 대한 적절한 우회 처리이다.",
+    "LEFT_CLICK 핸들러에서 '_fire' suffix 체크 후 slice(0, -5)로 fireId를 정확히 추출하는 로직이 올바르다.",
+    "연기/불 실린더의 위치(height + smokeHeight/2, height + fireSize/2), 크기, 색상, 투명도가 스펙과 정확히 일치한다.",
+    "언마운트 cleanup useEffect에서 viewer.isDestroyed() 체크 후 엔티티를 제거하는 방어 코드가 적절하다.",
+    "ScreenSpaceEventHandler를 handlerRef로 관리하여 cleanup 시 destroy()를 호출하는 구조가 올바르다.",
+    "null을 반환하는 렌더링 없는 컴포넌트로 올바르게 구현되었다.",
+    "FireEvent 인터페이스 및 props 타입이 task 스펙과 정확히 일치한다."
+  ]
+}

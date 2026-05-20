@@ -1,0 +1,17 @@
+{
+  "task_id": "t4_implement_fire_layer_component",
+  "modified_files": [
+    "app/src/types/fire.ts"
+  ],
+  "created_files": [
+    "app/src/components/FireLayer.tsx"
+  ],
+  "implementation_notes": [
+    "FireEvent 타입에 name 필드가 누락되어 있어 t1 task 요구사항에 맞게 추가함.",
+    "allowPicking=false는 Cesium Entity API에서 직접 지원되지 않으므로, LEFT_CLICK 핸들러에서 엔티티 id가 '_fire'로 끝나는 경우에만 extinguish를 호출하는 방식으로 연기 엔티티 클릭 간섭을 차단함.",
+    "fires 배열 변경 시 viewer.entities.removeAll() 후 재생성하는 방식으로 동기화하며, 이는 성장 반영도 자동으로 처리됨.",
+    "screenSpaceEventHandler는 별도 useEffect에서 관리하여 viewer/extinguish 변경 시에만 재등록되도록 분리함.",
+    "언마운트 cleanup useEffect에서 viewer.isDestroyed() 체크를 통해 이미 소멸된 viewer에 대한 접근을 방지함."
+  ],
+  "issues": []
+}
