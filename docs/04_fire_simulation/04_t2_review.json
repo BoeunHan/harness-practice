@@ -1,0 +1,26 @@
+{
+  "task_id": "t2_implement_fire_position_pool_hook",
+  "result": "passed",
+  "issues": [
+    {
+      "type": "logic",
+      "file": "app/src/hooks/useFirePositionPool.ts",
+      "description": "구현 명세는 viewer.scene.pickFromRay(ray) 사용을 지정했으나, 실제 구현은 scene을 any로 캐스팅한 뒤 pickFromRayMostDetailed를 호출한다. pickFromRayMostDetailed는 공식 Cesium TypeScript 타입에 존재하지 않아 as any 우회가 필요하다. 단, 이전 검토에서 '더 정확한 충돌 결과를 위해 의도적으로 선택'했음이 확인되었다.",
+      "expected_behavior": "viewer.scene.pickFromRay(ray)로 동기 충돌 계산",
+      "actual_behavior": "(viewer.scene as any).pickFromRayMostDetailed(ray)로 비동기 충돌 계산 후 Promise.all로 취합",
+      "fix_suggestion": "명세 준수가 목적이라면 viewer.scene.pickFromRay(ray)로 변경한다. 현재 의도적 선택이라면 해당 API의 타입 미지원 이유와 런타임 가용성을 주석으로 명시하는 것을 권장한다.",
+      "user_comment": "pickFromRayMostDetailed는 Cesium의 비공식 API로, 더 정확한 충돌 결과를 제공하기 때문에 의도적으로 사용. 공식 타입이 없어서 as any로 우회."
+    }
+  ],
+  "positive_notes": [
+    "isCancelled 플래그(line 35)와 Promise.all 이후 체크(line 73), cleanup의 true 설정이 모두 올바르게 구현되어 언마운트 후 setState 호출이 방지된다.",
+    "FirePosition 타입을 올바르게 import하여 사용하고 있다.",
+    "중심 좌표(127.026177, 37.501197), 반경 600m, 풀 크기 30, 고도 150~250m 등 요구사항의 수치를 정확히 반영했다.",
+    "setTimeout 1500ms로 1~2초 디바운스 요구사항을 충족한다.",
+    "충돌 결과가 없을 때 height=0 fallback을 올바르게 처리하고 있다.",
+    "반환값 { FIRE_POSITIONS_POOL, isReady } 네이밍이 명세와 일치하며, isReady가 true일 때 pool 길이가 30인 acceptance criteria를 만족한다.",
+    "useEffect cleanup에서 timerRef clearTimeout과 isCancelled 플래그를 조합하여 견고한 메모리 누수 방지를 구현했다.",
+    "randomOffsetDegrees에서 위도에 따른 경도 보정(cos 보정)을 적용하여 지리적으로 정확한 반경 계산을 구현했다.",
+    "viewer를 파라미터로 받는 인터페이스는 t6 명세(useFirePositionPool(viewer) 호출 형태)와 일치한다."
+  ]
+}
