@@ -1,6 +1,16 @@
 import { useEffect } from "react";
 import * as Cesium from "cesium";
 
+const validKeys = new Set([
+  "KeyW",
+  "KeyA",
+  "KeyS",
+  "KeyD",
+  "KeyE",
+  "KeyQ",
+  "ShiftLeft",
+]);
+
 export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
   useEffect(() => {
     if (!viewer) return;
@@ -21,7 +31,7 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
     screenSpaceCameraController.enableRotate = false;
 
     const keys = new Set<string>();
-    const validKeys = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyQ"]);
+
     const velocity = new Cesium.Cartesian3(0, 0, 0);
     const dampingFactor = 0.85;
 
@@ -38,7 +48,12 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
       // 지형 고도 조회 (fallback: 지형 데이터 미로드 시 position.height 사용)
       const terrainHeight = scene.globe.getHeight(position) ?? position.height;
       const relativeHeight = position.height - terrainHeight;
-      const speed = Math.max(5.0, relativeHeight * 0.1);
+      let speed = Math.max(30.0, relativeHeight * 0.2);
+
+      if (keys.has("ShiftLeft")) {
+        speed *= 4.0;
+      }
+
       const dt =
         clock.clockStep === Cesium.ClockStep.TICK_DEPENDENT
           ? 1 / 60
