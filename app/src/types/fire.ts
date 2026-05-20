@@ -6,7 +6,6 @@ export interface FirePosition {
 
 export interface FireEvent {
   id: string;
-  name: string;
   longitude: number;
   latitude: number;
   height: number;
