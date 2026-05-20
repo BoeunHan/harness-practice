@@ -14,7 +14,6 @@ CLUADE_RULE = """
 
 """
 
-CLAUDE_PATH = r"C:\Users\hboeu\AppData\Roaming\npm\claude.cmd"
 CLAUDE_HAIKU = "claude-haiku-4-5"
 CLAUDE_SONNET = "claude-sonnet-4-6"
 
@@ -33,7 +32,9 @@ def run_claude(prompt: str):
     try:
         subprocess.run(
             [
-                CLAUDE_PATH,
+                "cmd.exe",
+                "/c",
+                "claude",
                 "--model",
                 CLAUDE_SONNET,
                 "--permission-mode",
@@ -41,12 +42,20 @@ def run_claude(prompt: str):
                 "-p",
             ],
             input=full_prompt,
+            check=True,
             text=True,
             encoding="utf-8",
             errors="replace",
+            stderr=subprocess.PIPE,  # 에러 내용 수집
         )
+    except subprocess.CalledProcessError as e:
+        raise Exception(
+            f"\n❌ Claude 실행 실패 (Exit Code {e.returncode})\n{e.stderr}"
+        ) from None
+    except FileNotFoundError:
+        raise Exception("\n❌ 지정된 경로에서 Claude CLI를 찾을 수 없습니다:") from None
     except Exception as e:
-        print("❌ Claude 실행 중 오류 발생: ", e)
+        raise Exception(f"\n❌ 예상치 못한 오류 발생: {e}") from None
     finally:
         stop_event.set()
         thread.join()
