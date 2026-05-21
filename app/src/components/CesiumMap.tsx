@@ -41,7 +41,7 @@ export default function CesiumMap() {
       animation: false,
       baseLayerPicker: false,
       geocoder: false,
-      homeButton: true,
+      homeButton: false,
       sceneModePicker: false,
       navigationHelpButton: false,
 
@@ -90,7 +90,12 @@ export default function CesiumMap() {
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {viewer && (
-        <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} isLocked={isLocked} />
+        <FireLayer
+          fires={fires}
+          extinguish={extinguish}
+          viewer={viewer}
+          isLocked={isLocked}
+        />
       )}
       <CenterCrosshair />
       <FireDashboard count={fires.length} />
