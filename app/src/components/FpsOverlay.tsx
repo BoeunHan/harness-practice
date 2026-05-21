@@ -3,7 +3,10 @@ interface FpsOverlayProps {
   onRequestLock: () => void;
 }
 
-export default function FpsOverlay({ isLocked, onRequestLock }: FpsOverlayProps) {
+export default function FpsOverlay({
+  isLocked,
+  onRequestLock,
+}: FpsOverlayProps) {
   if (isLocked) return null;
 
   return (
@@ -23,7 +26,7 @@ export default function FpsOverlay({ isLocked, onRequestLock }: FpsOverlayProps)
         zIndex: 1000,
       }}
     >
-      <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>조작 일시정지</h2>
+      <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>일시정지</h2>
       <button
         onClick={onRequestLock}
         style={{

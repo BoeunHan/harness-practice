@@ -39,6 +39,7 @@ export default function CesiumMap() {
     Cesium.Ion.defaultAccessToken = token;
 
     const cesiumViewer = new Cesium.Viewer(containerRef.current, {
+      automaticallyTrackDataSourceClocks: false,
       timeline: false,
       animation: false,
       baseLayerPicker: false,
@@ -46,7 +47,7 @@ export default function CesiumMap() {
       homeButton: false,
       sceneModePicker: false,
       navigationHelpButton: false,
-
+      shadows: false,
       baseLayer: Cesium.ImageryLayer.fromProviderAsync(
         Cesium.IonImageryProvider.fromAssetId(2),
       ),

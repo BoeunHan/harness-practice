@@ -5,7 +5,7 @@ import { FirePosition } from "../types/fire";
 const CENTER_LONGITUDE = 127.026177;
 const CENTER_LATITUDE = 37.501197;
 const RADIUS_METERS = 600;
-const POOL_SIZE = 30;
+const POOL_SIZE = 50;
 
 function randomInRange(min: number, max: number): number {
   return Math.random() * (max - min) + min;
