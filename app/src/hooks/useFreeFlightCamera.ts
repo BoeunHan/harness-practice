@@ -199,7 +199,15 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null): {
         );
       }
 
-      const groundHeight = scene.sampleHeight(camera.positionCartographic);
+      const fireAndSmokeEntities = viewer.entities.values.filter(
+        (entity) => entity.id.endsWith("_fire") || entity.id.endsWith("_smoke"),
+      );
+
+      const groundHeight = scene.sampleHeight(
+        camera.positionCartographic,
+        fireAndSmokeEntities,
+      );
+
       if (groundHeight !== undefined) {
         const minAllowed = groundHeight + MIN_GROUND_CLEARANCE;
         if (camera.positionCartographic.height < minAllowed) {
