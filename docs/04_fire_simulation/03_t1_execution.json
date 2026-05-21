@@ -1,0 +1,12 @@
+{
+  "task_id": "t1_define_fire_types",
+  "modified_files": [],
+  "created_files": [
+    "app/src/types/fire.ts"
+  ],
+  "implementation_notes": [
+    "app/src/types/ 디렉토리가 존재하지 않아 새로 생성하며 파일을 작성했다.",
+    "FirePosition 타입과 FireEvent 인터페이스를 모두 export로 정의했다."
+  ],
+  "issues": []
+}

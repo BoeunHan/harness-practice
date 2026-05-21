@@ -1,0 +1,19 @@
+{
+  "task_id": "t6_integrate_cesiummap_and_app",
+  "modified_files": [
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "created_files": [
+    "docs/04_fire_simulation/03_t6_execution.json"
+  ],
+  "implementation_notes": [
+    "forwardRef/useImperativeHandle 및 CesiumMapHandle 인터페이스를 제거하고 일반 함수 컴포넌트로 변경했다.",
+    "초기 카메라 좌표를 화재 시뮬레이션 중심(longitude: 127.026177, latitude: 37.501197, height: 800)으로 변경했다.",
+    "task 문서에는 'Resium의 useCesium 훅'을 언급하지만, 프로젝트에 resium 패키지가 없어 기존 raw Cesium.Viewer 방식을 유지했다. viewer state를 useFirePositionPool에 직접 전달하는 방식으로 동일한 효과를 구현했다.",
+    "useFirePositionPool은 viewer | undefined를 받으므로 null을 undefined로 변환해 전달했다.",
+    "viewer가 null인 경우 FireLayer 렌더링을 조건부로 막아 타입 안전성을 확보했다.",
+    "App.tsx는 이미 ref 코드 없이 <CesiumMap />만 렌더링하고 있어 수정이 불필요했다.",
+    "viewerRef는 제거했다. viewer state만으로 훅 및 컴포넌트 연동에 충분하다."
+  ],
+  "issues": []
+}

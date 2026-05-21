@@ -1,0 +1,15 @@
+{
+  "task_id": "t5_implement_fire_dashboard_component",
+  "modified_files": [],
+  "created_files": [
+    "app/src/components/FireDashboard.tsx"
+  ],
+  "implementation_notes": [
+    "count(number) prop을 받아 화면 상단에 고정 위치로 화재 발생 현황을 표시하는 컴포넌트 구현",
+    "position: fixed, top: 0으로 화면 상단 고정",
+    "배경: rgba(0,0,0,0.6) 반투명 어두운 색, 흰색 텍스트, padding 적용",
+    "zIndex: 1000으로 Cesium 뷰어 위에 오버레이 렌더링",
+    "인라인 스타일로 스타일링"
+  ],
+  "issues": []
+}

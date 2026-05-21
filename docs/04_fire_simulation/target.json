@@ -1,0 +1,63 @@
+{
+  "project_name": "fire_simulation",
+  "description": "CesiumJS 기반 3D 건물 외벽 사선 충돌 검사 및 불/연기 독립 성장 화재 관제 시스템",
+  "goals": [
+    "Cesium(Resium) 지도 위에 실시간으로 연동되는 화재 시뮬레이션 뼈대 구축",
+    "위에서 아래로 비스듬히 쏘는 레이저 충돌 검사로 건물 외벽 겉면 및 땅바닥 좌표 30개 프리풀링",
+    "화염 크기(Max 5)와 연기 기둥 높이(Max 60)를 독립적으로 제어하는 실시간 시뮬레이션 구현"
+  ],
+  "scope": "frontend",
+  "tech_stack": {
+    "framework": "React",
+    "language": "TypeScript",
+    "bundler": "Vite"
+  },
+  "libraries": ["react", "react-router-dom", "cesium", "resium"],
+  "scripts": ["dev", "build", "lint", "format"],
+  "constraints": [
+    "모든 핵심 비즈니스 로직 및 컴포넌트는 src 내부에서만 생성",
+    "외부 서버 통신 없이 독립 실행 가능한 상태 유지",
+    "불필요한 서드파티 라이브러리 설치 금지 (순수 상태 관리와 Cesium API만 활용)",
+    "컴포넌트 언마운트 시 모든 가변 타이머(setTimeout, setInterval)의 클리어(clear) 필수 준수"
+  ],
+  "feature_spec": {
+    "data_structure": {
+      "interface_name": "FireEvent",
+      "fields": {
+        "id": "string (타임스탬프 기반 고유 ID)",
+        "name": "string (무작위 화재 구역 명칭)",
+        "longitude": "number (경도)",
+        "latitude": "number (위도)",
+        "height": "number (가상 레이저가 건물 외벽 표면 또는 지표면에 충돌한 정확한 고도 값)",
+        "fireSize": "number (불의 크기 상태: 1부터 시작해 1초마다 1씩 증가, 최대 5 제한)",
+        "smokeHeight": "number (연기 기둥의 높이 상태: 5부터 시작해 1초마다 5씩 증가, 최대 60 제한)",
+        "createdAt": "number (발생 시각 타임스탬프)"
+      }
+    },
+    "simulation_rules": {
+      "center_coordinate": {
+        "latitude": 37.501197,
+        "longitude": 127.026177
+      },
+      "spawn_radius_meters": 600,
+      "auto_extinguish": false,
+      "interval_rule": "매번 4초~8초 사이의 랜덤한 대기 시간을 동적으로 계산하여 다음 화재를 발생시킬 것 (재귀적 setTimeout 구조)",
+      "growth_mechanism": "핵심 반영: 전역 1초 타이머(setInterval)를 통해 활성화된 모든 화재의 스케일을 키우되, 두 데이터의 성장을 독립 제어할 것. 불의 크기(`fireSize`)는 매초 1씩 증가하여 [최대 5]에서 멈추고, 연기 높이(`smokeHeight`)는 매초 5씩 크게 자라나 [최대 60]까지 상공으로 길어지게 처리할 것.",
+      "extinguish_mechanism": "Cesium 지도 위에 렌더링된 [붉은색 화재 근원 그래픽]을 클릭하면 해당 화재 데이터(id)를 탐색하여 리액트 상태 배열에서 즉시 제거(filter)할 것."
+    },
+    "pre_computing_pool_rule": {
+      "mechanism": "위에서 아래 방향으로 비스듬한 레이저 충돌을 통한 표면 좌표 30개 프리풀링 (Resium의 useCesium 훅을 통해 viewer.scene에 접근)",
+      "step_1": "컴포넌트 마운트 후, 3D 건물 타일셋(OSM Buildings) 및 지도 타일 로딩이 안정화된 시점(또는 최초 로드 직후 약간의 디바운스 타임 부여)에 프리풀링 로직을 실행할 것.",
+      "step_2": "중심점 반경 600m 이내 범위 및 높은 상공(예: 고도 150m~250m 사이)의 임의의 '공중 시작점'들을 무작위로 생성할 것.",
+      "step_3": "각 공중 시작점에서 아래 방향으로 비스듬히(대각선 밑) 진행하며 중심 좌표 영역을 가로지르는 가상의 선(Cesium.Ray)을 정의할 것.",
+      "step_4": "cesiumViewer.scene.pickFromRay(ray)를 사용하여 3D 건물의 외벽 표면에 최초로 부딪힌 정확한 충돌 지점(hitPosition)의 3D 좌표를 가로챌 것.",
+      "step_5": "레이저가 건물을 맞추면 정확한 건물 외벽 겉면 좌표가 추출되어 내부 파묻힘 버그가 차단되며, 건물이 없는 빈 공간을 지나쳐 바닥에 부딪히면 고도(height)가 0인 지표면 좌표가 구해짐. 이 검증된 좌표 30개를 `FIRE_POSITIONS_POOL` 배열에 저장할 것.",
+      "step_6": "런타임 가변 타이머가 돌 때마다 이 풀(Pool)에서 요소를 무작위 초이스하여 활성화 상태에 주입할 것."
+    },
+    "ui_visual_rules": {
+      "smoke_effect": "이원화 렌더링: 연기는 반투명한 회색 3D CylinderGraphics(실린더) 도형으로 표현할 것. 연기 실린더의 높이(length)는 독립된 상태 값인 `smokeHeight`와 실시간 연동되어 위로 길어지며, 위쪽 반지름(topRadius)도 `smokeHeight * 0.3` 형태로 연동하여 위로 갈수록 퍼지는 깔끔한 깔때기 모양을 만들 것. 실린더의 중심점 위치(position)는 외벽 표면 고도 기준으로 `height + (smokeHeight / 2)` 공식을 적용하여 밑바닥이 건물 겉면에 고정된 채 하늘로만 솟구치게 구현할 것. (단, 마우스 클릭 이벤트가 아래쪽 불씨 그래픽에 전달될 수 있도록 연기 엔티티의 레이캐스팅 클릭 간섭을 방지하거나 코드로 예외 처리할 것)",
+      "fire_source_effect": "화재 오브젝트는 붉은색 계열의 3D 실린더 도형으로 표현하며 `fireSize`와 연동할 것. 중심점 고도 보정 공식 `height + (fireSize / 2)`를 동일하게 적용하여 밑바닥이 표면에 붙은 채 최대 5m 높이까지 자라나도록 표현하고, 이 엔티티에 클릭 핸들러를 바인딩하여 진압 로직을 수행할 것.",
+      "dashboard": "화면 상단 고정 영역에 현재 진압되지 않고 살아있는 [현재 발생한 화재 총 개수]만 표시."
+    }
+  }
+}

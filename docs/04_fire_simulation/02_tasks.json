@@ -1,0 +1,150 @@
+{
+  "tasks": [
+    {
+      "id": "t1_define_fire_types",
+      "description": "FireEvent 인터페이스 및 관련 타입을 정의한다.",
+      "dependencies": [],
+      "related_files": [
+        "app/src/types/fire.ts"
+      ],
+      "implementation_details": [
+        "app/src/types/fire.ts 파일을 새로 생성한다.",
+        "FireEvent 인터페이스를 정의한다: id(string, 타임스탬프 기반 고유 ID), name(string, 무작위 화재 구역 명칭), longitude(number), latitude(number), height(number, 충돌 고도), fireSize(number, 1~5), smokeHeight(number, 5~60), createdAt(number, 발생 시각 타임스탬프)",
+        "FirePosition 타입도 함께 정의한다: longitude(number), latitude(number), height(number)"
+      ],
+      "acceptance_criteria": [
+        "FireEvent 인터페이스가 모든 필드를 포함하여 export된다.",
+        "FirePosition 타입이 export된다.",
+        "TypeScript 컴파일 오류가 없다."
+      ]
+    },
+    {
+      "id": "t2_implement_fire_position_pool_hook",
+      "description": "pickFromRay를 이용해 건물 외벽/지표면 충돌 좌표 30개를 사전 계산하는 훅을 구현한다.",
+      "dependencies": ["t1_define_fire_types"],
+      "related_files": [
+        "app/src/hooks/useFirePositionPool.ts"
+      ],
+      "implementation_details": [
+        "app/src/hooks/useFirePositionPool.ts 파일을 새로 생성한다.",
+        "Resium의 useCesium 훅으로 viewer를 가져온다.",
+        "중심 좌표: 위도 37.501197, 경도 127.026177, 반경 600m 내 무작위 공중 시작점(고도 150~250m)을 30개 생성한다.",
+        "각 공중 시작점에서 중심 방향 아래로 비스듬한 Cesium.Ray를 생성한다.",
+        "viewer.scene.pickFromRay(ray)로 충돌 지점을 계산한다.",
+        "충돌 결과가 있으면 Cesium.Cartographic으로 변환해 longitude, latitude, height를 추출한다.",
+        "충돌 결과가 없으면 height=0인 지표면 좌표를 사용한다.",
+        "타일 로드 안정화를 위해 마운트 후 1~2초 setTimeout 디바운스를 적용한다.",
+        "계산된 FirePosition[] 배열(FIRE_POSITIONS_POOL)을 반환한다.",
+        "풀 준비 완료 여부(isReady: boolean)도 함께 반환한다."
+      ],
+      "acceptance_criteria": [
+        "마운트 후 1~2초 이내에 30개의 FirePosition이 풀에 채워진다.",
+        "각 좌표는 longitude, latitude, height를 포함한다.",
+        "isReady가 true가 되면 FIRE_POSITIONS_POOL 길이가 30이다.",
+        "TypeScript 컴파일 오류가 없다."
+      ]
+    },
+    {
+      "id": "t3_implement_fire_simulation_hook",
+      "description": "재귀 setTimeout 기반 화재 자동 발생과 setInterval 기반 독립 성장, 진압 함수를 관리하는 훅을 구현한다.",
+      "dependencies": ["t1_define_fire_types", "t2_implement_fire_position_pool_hook"],
+      "related_files": [
+        "app/src/hooks/useFireSimulation.ts"
+      ],
+      "implementation_details": [
+        "app/src/hooks/useFireSimulation.ts 파일을 새로 생성한다.",
+        "props로 firePositionPool(FirePosition[])과 isPoolReady(boolean)를 받는다.",
+        "fires(FireEvent[]) 상태를 useState로 관리한다.",
+        "재귀 setTimeout을 이용해 4~8초 랜덤 간격으로 화재를 생성한다: FIRE_POSITIONS_POOL에서 무작위 위치 선택, id=Date.now().toString(), name='화재구역-{랜덤번호}', fireSize=1, smokeHeight=5, createdAt=Date.now()로 초기화.",
+        "isPoolReady가 true일 때만 화재 자동 발생 타이머를 시작한다.",
+        "setInterval 1초 간격으로 전체 fires 배열을 순회하여 fireSize를 1씩 증가(최대 5), smokeHeight를 5씩 증가(최대 60) 처리한다.",
+        "extinguish(id: string) 함수: fires 배열에서 해당 id를 filter로 제거한다.",
+        "컴포넌트 언마운트 시 useEffect cleanup에서 모든 setTimeout/setInterval ref를 clear한다.",
+        "{ fires, extinguish }를 반환한다."
+      ],
+      "acceptance_criteria": [
+        "isPoolReady=true 후 4~8초 간격으로 fires 배열에 FireEvent가 추가된다.",
+        "매초 fires 내 모든 항목의 fireSize가 1씩 증가하되 최대 5에서 멈춘다.",
+        "매초 fires 내 모든 항목의 smokeHeight가 5씩 증가하되 최대 60에서 멈춘다.",
+        "extinguish(id) 호출 시 해당 id의 화재가 fires 배열에서 즉시 제거된다.",
+        "훅 사용 컴포넌트 언마운트 시 모든 타이머가 clear되어 메모리 누수가 없다.",
+        "TypeScript 컴파일 오류가 없다."
+      ]
+    },
+    {
+      "id": "t4_implement_fire_layer_component",
+      "description": "활성 화재 배열을 받아 Cesium Entity(불/연기 실린더)를 viewer에 직접 추가·제거하는 컴포넌트를 구현한다.",
+      "dependencies": ["t1_define_fire_types"],
+      "related_files": [
+        "app/src/components/FireLayer.tsx"
+      ],
+      "implementation_details": [
+        "app/src/components/FireLayer.tsx 파일을 새로 생성한다.",
+        "props: fires(FireEvent[]), extinguish((id: string) => void), viewer(Cesium.Viewer)를 받는다.",
+        "fires 배열 변경 시 useEffect로 viewer.entities를 동기화한다: 이전 엔티티를 모두 removeAll하고 현재 fires를 기준으로 재생성한다.",
+        "연기 엔티티: id='{fireId}_smoke', position=Cesium.Cartesian3.fromDegrees(longitude, latitude, height + smokeHeight/2), cylinder={length: smokeHeight, topRadius: smokeHeight*0.3, bottomRadius: 1, material: Cesium.Color.GRAY.withAlpha(0.4)}, allowPicking=false 설정으로 클릭 간섭 차단.",
+        "불 엔티티: id='{fireId}_fire', position=Cesium.Cartesian3.fromDegrees(longitude, latitude, height + fireSize/2), cylinder={length: fireSize, topRadius: fireSize*0.5, bottomRadius: fireSize*0.5, material: Cesium.Color.RED.withAlpha(0.9)}.",
+        "불 엔티티 클릭 이벤트: viewer.screenSpaceEventHandler로 LEFT_CLICK 핸들러를 등록하여 pickedEntity id가 '_fire'로 끝나는 경우 해당 fireId를 추출 후 extinguish(fireId)를 호출한다.",
+        "컴포넌트 언마운트 시 useEffect cleanup에서 등록한 엔티티 전체를 제거하고 이벤트 핸들러를 해제한다.",
+        "null을 반환하는 렌더링 없는 컴포넌트로 구현한다."
+      ],
+      "acceptance_criteria": [
+        "fires 배열에 항목이 추가되면 해당 위치에 붉은 불 실린더와 회색 반투명 연기 실린더가 viewer에 렌더링된다.",
+        "fires 배열 변경(성장) 시 실린더 크기가 실시간으로 반영된다.",
+        "연기 실린더 클릭 시 아무 반응이 없다.",
+        "불 실린더 클릭 시 extinguish가 호출되어 해당 화재가 제거된다.",
+        "언마운트 시 모든 엔티티가 viewer에서 제거된다.",
+        "TypeScript 컴파일 오류가 없다."
+      ]
+    },
+    {
+      "id": "t5_implement_fire_dashboard_component",
+      "description": "화면 상단에 현재 활성 화재 총 개수를 표시하는 대시보드 UI 컴포넌트를 구현한다.",
+      "dependencies": ["t1_define_fire_types"],
+      "related_files": [
+        "app/src/components/FireDashboard.tsx"
+      ],
+      "implementation_details": [
+        "app/src/components/FireDashboard.tsx 파일을 새로 생성한다.",
+        "props: count(number)를 받는다.",
+        "화면 상단 고정(position: fixed, top: 0) 영역에 '현재 화재 발생: {count}건' 형식으로 표시한다.",
+        "인라인 스타일 또는 CSS 모듈로 스타일링한다: 배경 반투명 어두운 색, 흰색 텍스트, 패딩 적용."
+      ],
+      "acceptance_criteria": [
+        "화면 상단에 고정 위치로 렌더링된다.",
+        "count prop이 변경되면 즉시 숫자가 업데이트된다.",
+        "TypeScript 컴파일 오류가 없다."
+      ]
+    },
+    {
+      "id": "t6_integrate_cesiummap_and_app",
+      "description": "CesiumMap.tsx를 화재 시뮬레이션 훅·컴포넌트와 연동하고, App.tsx의 ref 전달 및 레이아웃을 단순화한다.",
+      "dependencies": ["t2_implement_fire_position_pool_hook", "t3_implement_fire_simulation_hook", "t4_implement_fire_layer_component", "t5_implement_fire_dashboard_component"],
+      "related_files": [
+        "app/src/components/CesiumMap.tsx",
+        "app/src/App.tsx"
+      ],
+      "implementation_details": [
+        "CesiumMap.tsx: forwardRef/useImperativeHandle 제거, 일반 함수 컴포넌트로 변경한다.",
+        "CesiumMap.tsx: 초기 카메라 위치를 화재 시뮬레이션 중심 좌표(longitude: 127.026177, latitude: 37.501197, height: 800)로 변경한다.",
+        "CesiumMap.tsx: Resium의 Viewer 컴포넌트 내부에서 useCesium으로 viewer 인스턴스를 가져온다.",
+        "CesiumMap.tsx: useFirePositionPool(viewer)를 호출하여 firePositionPool, isPoolReady를 얻는다.",
+        "CesiumMap.tsx: useFireSimulation({ firePositionPool, isPoolReady })를 호출하여 fires, extinguish를 얻는다.",
+        "CesiumMap.tsx: <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} />를 렌더링한다.",
+        "CesiumMap.tsx: <FireDashboard count={fires.length} />를 렌더링한다.",
+        "App.tsx: CesiumMap에 대한 ref 생성 및 전달 코드를 제거한다.",
+        "App.tsx: 레이아웃을 단순화하여 <CesiumMap />만 렌더링하는 구조로 정리한다."
+      ],
+      "acceptance_criteria": [
+        "앱 실행 시 강남 중심부(127.026177, 37.501197)가 초기 카메라로 표시된다.",
+        "OSM Buildings가 렌더링된다.",
+        "마운트 후 1~2초 이내 좌표 풀이 채워지고 4~8초 간격으로 화재가 자동 발생한다.",
+        "불/연기 실린더가 지도 위에 렌더링된다.",
+        "화면 상단 대시보드에 화재 개수가 표시된다.",
+        "불 클릭 시 해당 화재가 제거된다.",
+        "TypeScript 컴파일 오류가 없다.",
+        "App.tsx에 불필요한 ref 코드가 없다."
+      ]
+    }
+  ]
+}

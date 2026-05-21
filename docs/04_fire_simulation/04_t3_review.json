@@ -1,0 +1,31 @@
+{
+  "task_id": "t3_implement_fire_simulation_hook",
+  "result": "failed",
+  "issues": [
+    {
+      "type": "missing_feature",
+      "file": "app/src/hooks/useFireSimulation.ts",
+      "description": "FireEvent 생성 시 name 필드가 누락되어 있다.",
+      "expected_behavior": "implementation_details에 따르면 name='화재구역-{랜덤번호}' 형식으로 초기화해야 한다.",
+      "actual_behavior": "newFire 객체에 name 필드가 없으며 할당도 없다.",
+      "fix_suggestion": "newFire 생성 시 name: `화재구역-${Math.floor(Math.random() * 1000)}` 를 추가한다. 단, FireEvent 인터페이스(app/src/types/fire.ts)에도 name: string 필드를 추가해야 컴파일 오류가 없다.",
+      "user_comment": "불필요한 필드라서 의도적으로 제거함."
+    },
+    {
+      "type": "interface_mismatch",
+      "file": "app/src/types/fire.ts",
+      "description": "FireEvent 인터페이스에 name 필드가 정의되어 있지 않아, t3에서 name을 추가할 경우 타입 오류가 발생한다.",
+      "expected_behavior": "t1 task의 implementation_details에 따르면 FireEvent에 name(string, 무작위 화재 구역 명칭) 필드가 포함되어야 한다.",
+      "actual_behavior": "현재 FireEvent 인터페이스에는 name 필드가 없다.",
+      "fix_suggestion": "app/src/types/fire.ts의 FireEvent 인터페이스에 name: string 필드를 추가한다. (t1 미완성 사항이나 t3 구현에 직접 영향을 주므로 함께 수정 필요)"
+    }
+  ],
+  "positive_notes": [
+    "재귀 setTimeout으로 4~8초(Math.random() * 4000 + 4000) 랜덤 간격 화재 발생을 올바르게 구현했다.",
+    "setInterval 1초 간격으로 fireSize(최대 5), smokeHeight(최대 60) 성장 로직이 Math.min을 사용해 정확히 구현되어 있다.",
+    "isPoolReady && firePositionPool.length > 0 조건으로 풀 준비 전에는 타이머가 시작되지 않도록 올바르게 가드했다.",
+    "useEffect cleanup에서 spawnTimerRef와 growthIntervalRef를 모두 clear하여 메모리 누수를 방지한다.",
+    "extinguish는 useCallback으로 안정된 참조를 보장하며, filter로 즉시 제거하는 로직이 정확하다.",
+    "{ fires, extinguish } 반환 구조가 task 명세와 일치한다."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "task_id": "t3_implement_fire_simulation_hook",
+  "modified_files": [],
+  "created_files": [
+    "app/src/hooks/useFireSimulation.ts"
+  ],
+  "implementation_notes": [
+    "scheduleNextSpawn을 useCallback으로 분리하여 재귀 setTimeout 패턴을 구현했다.",
+    "useEffect dependency에 scheduleNextSpawn을 포함시켜 firePositionPool 변경 시 재시작되도록 했다.",
+    "isPoolReady가 false이거나 pool이 비어있으면 타이머를 시작하지 않는다.",
+    "cleanup에서 spawnTimerRef와 growthIntervalRef를 모두 clear한다."
+  ],
+  "issues": []
+}

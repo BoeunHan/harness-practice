@@ -1,0 +1,58 @@
+{
+  "goal": "CesiumJS 기반 3D 건물 외벽 사선 충돌 검사(pickFromRay) 및 불/연기 독립 성장 화재 관제 시스템 구현",
+  "plan_summary": "기존 CesiumMap.tsx를 화재 시뮬레이션 기능 전담 컴포넌트로 리팩터링하고, 화재 데이터 타입·상태 관리 훅·좌표 프리풀링 로직·Entity 렌더링을 분리된 파일로 구성한다. 핵심은 pickFromRay를 통한 건물 외벽 좌표 30개 사전 계산, 재귀 setTimeout 기반 화재 발생, setInterval 기반 성장 제어, Entity 클릭을 통한 진압이다.",
+  "constraints": [
+    "모든 핵심 비즈니스 로직 및 컴포넌트는 app/src 내부에서만 생성",
+    "외부 서버 통신 없이 독립 실행 가능한 상태 유지",
+    "불필요한 서드파티 라이브러리 설치 금지 (순수 상태 관리와 Cesium API만 활용)",
+    "컴포넌트 언마운트 시 모든 가변 타이머(setTimeout, setInterval)의 클리어(clear) 필수 준수",
+    "tech_stack: React + TypeScript + Vite 고정"
+  ],
+  "file_inventory": [
+    {
+      "path": "app/src/types/fire.ts",
+      "action": "create",
+      "reason": "FireEvent 인터페이스 정의. id(타임스탬프 기반), name, longitude, latitude, height, fireSize, smokeHeight, createdAt 필드 포함"
+    },
+    {
+      "path": "app/src/hooks/useFireSimulation.ts",
+      "action": "create",
+      "reason": "화재 시뮬레이션 핵심 상태 관리 훅. FIRE_POSITIONS_POOL 참조, 재귀 setTimeout으로 화재 생성(4~8초 랜덤 간격), setInterval로 전체 fireSize/smokeHeight 독립 증가(fireSize 최대 5, smokeHeight 최대 60), 진압 함수(extinguish) 노출. 언마운트 시 모든 타이머 clear."
+    },
+    {
+      "path": "app/src/hooks/useFirePositionPool.ts",
+      "action": "create",
+      "reason": "컴포넌트 마운트 후 Cesium viewer.scene.pickFromRay를 이용해 중심점(37.501197, 127.026177) 반경 600m, 고도 150~250m 공중 시작점 → 대각선 아래 방향 Ray → 건물 외벽/지표면 충돌 좌표 30개를 계산하여 FIRE_POSITIONS_POOL 배열로 반환하는 훅. 타일 로드 안정화를 위해 약간의 디바운스(setTimeout 1~2초) 적용."
+    },
+    {
+      "path": "app/src/components/FireLayer.tsx",
+      "action": "create",
+      "reason": "활성 화재 배열을 받아 Cesium Entity(CylinderGraphics)를 직접 viewer.entities에 추가/제거하는 컴포넌트. 연기: 반투명 회색 실린더(length=smokeHeight, topRadius=smokeHeight*0.3, position=height+smokeHeight/2), 불: 붉은 실린더(length=fireSize, topRadius/bottomRadius=fireSize*0.5, position=height+fireSize/2). 연기 엔티티는 allowPicking=false로 클릭 간섭 차단. 불 엔티티 클릭 시 extinguish(id) 호출."
+    },
+    {
+      "path": "app/src/components/FireDashboard.tsx",
+      "action": "create",
+      "reason": "화면 상단 고정 영역에 현재 활성 화재 총 개수를 표시하는 UI 컴포넌트. props로 count(number) 수신."
+    },
+    {
+      "path": "app/src/components/CesiumMap.tsx",
+      "action": "modify",
+      "reason": "기존 viewer 초기화 로직 유지. 화재 시뮬레이션 연동을 위해 viewer를 useFirePositionPool, useFireSimulation, FireLayer, FireDashboard에 전달하도록 수정. forwardRef/useImperativeHandle 제거 가능(App.tsx가 ref를 사용하지 않으므로). 초기 카메라 위치를 화재 시뮬레이션 중심 좌표(37.501197, 127.026177)로 변경."
+    },
+    {
+      "path": "app/src/App.tsx",
+      "action": "modify",
+      "reason": "CesiumMap ref 전달 제거(더 이상 불필요). 레이아웃 구조 단순화."
+    }
+  ],
+  "acceptance_criteria": [
+    "앱 실행 시 CesiumMap이 강남 중심부(127.026177, 37.501197)를 보여주며 OSM Buildings가 렌더링된다.",
+    "마운트 후 1~2초 이내에 pickFromRay를 통해 건물 외벽/지표면 좌표 30개가 FIRE_POSITIONS_POOL에 채워진다.",
+    "4~8초 랜덤 간격으로 화재가 자동 발생하며 해당 좌표(경도/위도/height)에 붉은 실린더(불)와 회색 실린더(연기)가 렌더링된다.",
+    "fireSize는 매초 1씩 증가(최대 5)하고 smokeHeight는 매초 5씩 증가(최대 60)하며 두 값이 독립적으로 동작한다.",
+    "연기 실린더의 높이와 퍼짐(topRadius=smokeHeight*0.3)이 smokeHeight에 실시간 연동되고, 불 실린더 크기가 fireSize에 연동된다.",
+    "연기 엔티티는 마우스 클릭에 반응하지 않으며, 불 엔티티 클릭 시 해당 화재가 상태 배열에서 즉시 제거되고 Entity가 사라진다.",
+    "화면 상단 대시보드에 현재 활성 화재 개수가 실시간으로 표시된다.",
+    "컴포넌트 언마운트 시 모든 setTimeout/setInterval이 정상 clear된다."
+  ]
+}

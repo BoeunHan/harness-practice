@@ -1,27 +1,28 @@
-import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
 import { useFreeFlightCamera } from "../hooks/useFreeFlightCamera";
+import { useFirePositionPool } from "../hooks/useFirePositionPool";
+import { useFireSimulation } from "../hooks/useFireSimulation";
+import FireLayer from "./FireLayer";
+import FireDashboard from "./FireDashboard";
 
-export interface CesiumMapHandle {
-  viewer: Cesium.Viewer | null;
-}
+const FIRE_CENTER_LONGITUDE = 127.026177;
+const FIRE_CENTER_LATITUDE = 37.501197;
+const INITIAL_HEIGHT = 100;
 
-const GANGNAM_LONGITUDE = 127.0276;
-const GANGNAM_LATITUDE = 37.4979;
-const INITIAL_HEIGHT = 40;
-
-const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
+export default function CesiumMap() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
 
-  useImperativeHandle(ref, () => ({
-    get viewer() {
-      return viewerRef.current;
-    },
-  }));
-
   useFreeFlightCamera(viewer);
+
+  const { FIRE_POSITIONS_POOL, isReady } = useFirePositionPool(
+    viewer ?? undefined,
+  );
+  const { fires, extinguish } = useFireSimulation({
+    firePositionPool: FIRE_POSITIONS_POOL,
+    isPoolReady: isReady,
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -58,8 +59,8 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
 
     cesiumViewer.camera.setView({
       destination: Cesium.Cartesian3.fromDegrees(
-        GANGNAM_LONGITUDE,
-        GANGNAM_LATITUDE,
+        FIRE_CENTER_LONGITUDE,
+        FIRE_CENTER_LATITUDE,
         INITIAL_HEIGHT,
       ),
       orientation: {
@@ -69,21 +70,23 @@ const CesiumMap = forwardRef<CesiumMapHandle>((_, ref) => {
       },
     });
 
-    viewerRef.current = cesiumViewer;
     setViewer(cesiumViewer);
 
     return () => {
       if (!cesiumViewer.isDestroyed()) {
         cesiumViewer.destroy();
       }
-      viewerRef.current = null;
       setViewer(null);
     };
   }, []);
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
-});
-
-CesiumMap.displayName = "CesiumMap";
-
-export default CesiumMap;
+  return (
+    <>
+      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+      {viewer && (
+        <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} />
+      )}
+      <FireDashboard count={fires.length} />
+    </>
+  );
+}
