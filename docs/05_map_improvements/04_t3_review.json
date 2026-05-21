@@ -1,0 +1,14 @@
+{
+  "task_id": "t3_fps_overlay_component",
+  "result": "passed",
+  "issues": [],
+  "positive_notes": [
+    "FpsOverlay.tsx가 신규 생성되었으며, isLocked: boolean과 onRequestLock: () => void props를 정확히 수용한다.",
+    "isLocked가 true일 때 null을 반환하여 오버레이를 숨기고, false일 때만 렌더링하는 로직이 명확하다.",
+    "position: fixed, 전체 화면 크기, 화면 중앙 정렬(flexbox), 반투명 검정 배경(rgba(0,0,0,0.6))으로 스타일링되어 요구사항을 충족한다.",
+    "'조작 일시정지' 제목 텍스트, '클릭하여 재개' 버튼(onClick → onRequestLock), ESC 안내 문구가 모두 포함되어 있다.",
+    "CesiumMap.tsx에서 useFreeFlightCamera의 isLocked를 구독하고, handleRequestLock(canvas.requestPointerLock 호출)을 정의하여 FpsOverlay에 전달하고 있다.",
+    "JSX 렌더링 트리에 <FpsOverlay isLocked={isLocked} onRequestLock={handleRequestLock} />가 추가되어 있다.",
+    "task 범위를 벗어난 수정 없이 CesiumMap.tsx와 FpsOverlay.tsx만 변경/생성되었다."
+  ]
+}

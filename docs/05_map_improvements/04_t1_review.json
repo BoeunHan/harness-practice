@@ -1,0 +1,21 @@
+{
+  "task_id": "t1_fps_camera_pointer_lock",
+  "result": "passed",
+  "issues": [
+    {
+      "type": "logic",
+      "file": "app/src/hooks/useFreeFlightCamera.ts",
+      "description": "SENSITIVITY 값이 0.001로 설정되어 있으나 task 명세는 '0.002 수준'을 지정함",
+      "expected_behavior": "SENSITIVITY = 0.002 수준의 값으로 정의되어야 한다",
+      "actual_behavior": "SENSITIVITY = 0.001 (명세 값의 절반)로 설정되어 있어 마우스 감도가 의도보다 낮게 동작한다",
+      "fix_suggestion": "const SENSITIVITY = 0.002; 로 변경하거나, 의도적으로 낮춘 경우 execution.json issues에 근거를 기록한다"
+    }
+  ],
+  "positive_notes": [
+    "isLockedRef(useRef)와 isLocked(useState)를 병행 사용하여 mousemove 핸들러 내 클로저 문제 없이 최신 락 상태를 참조하는 구조가 정확하다.",
+    "click, pointerlockchange, mousemove 세 이벤트 리스너가 useEffect cleanup에서 모두 removeEventListener로 해제되어 메모리 누수 가능성이 없다.",
+    "훅 반환값이 void에서 { isLocked: boolean }으로 변경되어 acceptance criteria를 충족한다.",
+    "기존 screenSpaceCameraController.lookEventTypes 기반 드래그 시선 제어를 제거하고 enableLook = false로 명시 비활성화한 처리가 올바르다.",
+    "document 레벨에 click 이벤트를 등록하여 Pointer Lock API 보안 정책(사용자 입력 이벤트 내 호출)을 준수한다."
+  ]
+}

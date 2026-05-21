@@ -1,0 +1,12 @@
+{
+  "task_id": "t1_fps_camera_pointer_lock",
+  "modified_files": ["app/src/hooks/useFreeFlightCamera.ts"],
+  "created_files": [],
+  "implementation_notes": [
+    "기존 LEFT_DRAG Look 리매핑(screenSpaceCameraController.lookEventTypes) 코드를 제거하고 enableLook을 false로 설정했다.",
+    "isLockedRef(useRef)를 isLocked(useState)와 병행 사용하여 mousemove 핸들러에서 클로저 문제 없이 최신 락 상태를 참조하도록 했다.",
+    "click 이벤트는 document에 등록하여 캔버스 외 영역 클릭도 포인터 락 요청이 가능하도록 했다.",
+    "훅 반환값을 void에서 { isLocked: boolean }으로 변경하여 호출측에서 락 상태를 구독할 수 있도록 했다."
+  ],
+  "issues": []
+}

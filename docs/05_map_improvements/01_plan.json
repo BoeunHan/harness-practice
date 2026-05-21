@@ -1,0 +1,45 @@
+{
+  "goal": "CesiumJS 기반 FPS 스타일 카메라 제어 및 지형 동기화 화재 시뮬레이터 관제 시스템 개선 - 마우스 포인터 락 FPS 시선 제어, 카메라 틱 레이어 기반 충돌/경계 제한, 레이저 종점 분산 및 화면 정중앙 조준점 기반 화재 소화 시스템 개편",
+  "plan_summary": "useFreeFlightCamera 훅을 Pointer Lock API 기반 FPS 제어로 고도화하고 위치 보정을 clock.onTick 파이프라인으로 일원화한다. useFirePositionPool의 레이캐스팅 범위를 무작위로 분산하고, FpsOverlay 컴포넌트를 통해 일시정지 화면 및 게임용 조준점 UI를 통합 제공한다. 마지막으로 마우스 락 상황에 맞춰 기존 마우스 픽킹 소화 로직을 화면 정중앙 조준점 조준 사격(Central Raycast Picking) 방식으로 전면 수정한다.",
+  "constraints": [
+    "모든 카메라 제어 및 엔티티 배치 로직은 app/src 내부에서만 생성",
+    "외부 서버 없이 클라이언트 독립 실행 및 매 프레임 최적화 준수",
+    "Pointer Lock API 사용 시 브라우저 Click to Lock 보안 정책 준수 - 반드시 사용자 클릭 이벤트 핸들러 내에서 requestPointerLock() 호출",
+    "컴포넌트 언마운트 시 mousemove, pointerlockchange, clock.onTick 이벤트 리스너 해제 필수",
+    "tech_stack: React + TypeScript + Vite, 라이브러리: react, react-router-dom, cesium, resium"
+  ],
+  "file_inventory": [
+    {
+      "path": "app/src/hooks/useFreeFlightCamera.ts",
+      "action": "modify",
+      "reason": "기존 드래그 방식을 숨겨진 포인터 락 및 mousemove 델타값 추적 방식으로 변경하고, 카메라 물리 위치 연산 및 600m 반경 벽 충돌, 가속도 초기화, 최저/최고 고도 바닥 보정 처리를 clock.onTick 이벤트 단일 파이프라인으로 통합 통합 구현."
+    },
+    {
+      "path": "app/src/components/FpsOverlay.tsx",
+      "action": "create",
+      "reason": "isLocked가 false일 때는 일시정지 반투명 모달을, isLocked가 true일 때는 화면 정중앙에 크로스헤어 정밀 조준점 점(•) 또는 십자(+) 가이드 레이어를 CSS로 가볍게 오버레이 렌더링하는 역할 담당."
+    },
+    {
+      "path": "app/src/components/CesiumMap.tsx",
+      "action": "modify",
+      "reason": "useFreeFlightCamera가 반환하는 락 상태를 받아 FpsOverlay를 매핑 연동해줌."
+    },
+    {
+      "path": "app/src/hooks/useFirePositionPool.ts",
+      "action": "modify",
+      "reason": "화재 레이 오리진과 타겟 종점에 각각 무작위 경위도 오프셋을 적용해 다양한 입사각과 위치로 불이 떨어지도록 수정."
+    },
+    {
+      "path": "app/src/components/FireLayer.tsx",
+      "action": "modify",
+      "reason": "기존 마우스 좌표 추적 스크린 픽킹 로직을 전면 삭제하고, 화면 중앙 가로/세로 절반(clientWidth/2, clientHeight/2) 고정 포인트를 기준으로 대상을 조준 픽킹하여 소화시키는 중앙 사격식 로직으로 전면 리팩토링."
+    }
+  ],
+  "acceptance_criteria": [
+    "화면 클릭 시 마우스 커서가 숨겨지며 마우스 이동에 따라 FPS 카메라 회전이 이루어지고 화면 정중앙에 정밀 조준점이 배치된다.",
+    "ESC 클릭 시 락이 풀리며 조작 일시정지 화면이 뜨고 오버레이를 재클릭하면 정상 복귀된다.",
+    "카메라가 건물 내부나 지상 5m 아래로 꺼지지 않고, 중심 반경 600m 바깥으로 절대 탈출할 수 없다.",
+    "화재 인스턴스들이 중앙 한 지점이 아닌 넓은 반경의 무작위 지형 바닥 포인트들로 다채롭게 분산 레이캐스팅되어 안착된다.",
+    "마우스 커서가 없는 상태에서 화면 정중앙 조준점을 불 엔티티에 조준하고 마우스를 클릭하면 정확히 타겟팅되어 화재가 진화된다."
+  ]
+}

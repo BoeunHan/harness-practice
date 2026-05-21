@@ -1,0 +1,15 @@
+{
+  "task_id": "t3_fps_overlay_component",
+  "modified_files": [
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "created_files": [
+    "app/src/components/FpsOverlay.tsx"
+  ],
+  "implementation_notes": [
+    "useFreeFlightCamera는 이미 isLocked를 반환하고 있어 별도 수정 없이 사용.",
+    "handleRequestLock은 viewer가 null일 수 있으므로 optional chaining으로 처리.",
+    "FpsOverlay는 isLocked가 true이면 null을 반환하여 렌더링 최소화."
+  ],
+  "issues": []
+}

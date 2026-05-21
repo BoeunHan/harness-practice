@@ -5,16 +5,24 @@ import { useFirePositionPool } from "../hooks/useFirePositionPool";
 import { useFireSimulation } from "../hooks/useFireSimulation";
 import FireLayer from "./FireLayer";
 import FireDashboard from "./FireDashboard";
+import FpsOverlay from "./FpsOverlay";
+import CenterCrosshair from "./CenterCrosshair";
+import LabelLayer from "./LabelLayer";
+import { LABELS } from "../data/labels";
 
 const FIRE_CENTER_LONGITUDE = 127.026177;
-const FIRE_CENTER_LATITUDE = 37.501197;
+const FIRE_CENTER_LATITUDE = 37.5011;
 const INITIAL_HEIGHT = 100;
 
 export default function CesiumMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
 
-  useFreeFlightCamera(viewer);
+  const { isLocked } = useFreeFlightCamera(viewer);
+
+  const handleRequestLock = () => {
+    viewer?.canvas.requestPointerLock();
+  };
 
   const { FIRE_POSITIONS_POOL, isReady } = useFirePositionPool(
     viewer ?? undefined,
@@ -31,14 +39,15 @@ export default function CesiumMap() {
     Cesium.Ion.defaultAccessToken = token;
 
     const cesiumViewer = new Cesium.Viewer(containerRef.current, {
+      automaticallyTrackDataSourceClocks: false,
       timeline: false,
       animation: false,
       baseLayerPicker: false,
       geocoder: false,
-      homeButton: true,
+      homeButton: false,
       sceneModePicker: false,
       navigationHelpButton: false,
-
+      shadows: false,
       baseLayer: Cesium.ImageryLayer.fromProviderAsync(
         Cesium.IonImageryProvider.fromAssetId(2),
       ),
@@ -64,8 +73,8 @@ export default function CesiumMap() {
         INITIAL_HEIGHT,
       ),
       orientation: {
-        heading: Cesium.Math.toRadians(45),
-        pitch: Cesium.Math.toRadians(-15),
+        heading: Cesium.Math.toRadians(-20),
+        pitch: Cesium.Math.toRadians(-5),
         roll: 0,
       },
     });
@@ -84,9 +93,19 @@ export default function CesiumMap() {
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {viewer && (
-        <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} />
+        <>
+          <FireLayer
+            fires={fires}
+            extinguish={extinguish}
+            viewer={viewer}
+            isLocked={isLocked}
+          />
+          <LabelLayer labels={LABELS} viewer={viewer} />
+        </>
       )}
+      <CenterCrosshair />
       <FireDashboard count={fires.length} />
+      <FpsOverlay isLocked={isLocked} onRequestLock={handleRequestLock} />
     </>
   );
 }

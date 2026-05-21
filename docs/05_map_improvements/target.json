@@ -1,0 +1,60 @@
+{
+  "project_name": "map_improvements",
+  "description": "CesiumJS 기반 FPS 스타일 카메라 제어 및 지형 동기화 화재 시뮬레이터 관제 시스템 개선",
+  "goals": [
+    "마우스 포인터 락 기반 FPS 스타일의 직관적인 무클릭 시선 전환 인터페이스 구축",
+    "카메라의 3D 건물 투과 방지 및 중심점 기준 공간적 활동 범위 제한",
+    "화재 레이저 종점의 전역 분산 및 지형 고도 동기화를 통한 그래픽 파묻힘 현상 해결"
+  ],
+  "scope": "frontend",
+  "tech_stack": {
+    "framework": "React",
+    "language": "TypeScript",
+    "bundler": "Vite"
+  },
+  "libraries": ["react", "react-router-dom", "cesium", "resium"],
+  "constraints": [
+    "모든 카메라 제어 및 엔티티 배치 로직은 src 내부에서만 생성",
+    "외부 서버 없이 클라이언트 독립 실행 및 매 프레임(preRender) 최적화 준수",
+    "Pointer Lock API 사용 시 브라우저 사용자 상호작용 보안 정책(Click to Lock) 준수",
+    "컴포넌트 언마운트 시 마우스 이벤트 리스너 및 카메라 리스너 해제 필수"
+  ],
+  "feature_spec": {
+    "laser_spawn_rule": {
+      "mechanism": "바닥 영역 전체를 대상으로 하는 2점 무작위 레이캐스팅 분산",
+      "target_point": "기존 중앙 고정 방식에서 탈피하여, 바닥 범위(경위도 오프셋) 내의 임의의 지점을 종점으로 동적 생성",
+      "ray_intersection": "시작점과 무작위 종점을 잇는 방향 벡터로 Cesium.Ray를 생성한 뒤 scene.pickFromRay를 통해 실제 충돌 좌표 추출"
+    },
+    "camera_collision_rule": {
+      "mechanism": "매 프레임 preRender 이벤트를 활용한 실시간 카메라 높이 보정",
+      "terrain_test": "viewer.scene.globe.depthTestAgainstTerrain 설정을 활성화하여 기본 지형 투과 방지",
+      "building_collision": "scene.sampleHeight를 호출하여 현재 카메라 위치 발밑에 있는 3D Tiles(건물 옥상 등)의 실제 높이를 실시간 계산",
+      "anti_penetration": "카메라의 고도가 계산된 바닥 높이보다 낮아지거나 충돌하려 할 때, 설정한 최소 지상고(예: 5m)를 유지하도록 카메라 위치 강제 밀어 올림"
+    },
+    "camera_boundary_rule": {
+      "mechanism": "중심 영역 기준 반경 및 고도 제한 가이드라인 적용",
+      "center_coordinate": {
+        "latitude": 37.501197,
+        "longitude": 127.026177
+      },
+      "radius_limit_meters": 600,
+      "altitude_limit": {
+        "min_meters": 5,
+        "max_meters": 300
+      },
+      "correction_logic": "카메라와 중심점 간의 직선 거리가 600m를 초과하거나 최대 고도를 벗어나면, 경계선 안쪽 방향 벡터로 오버슛(초과분)만큼 좌표를 강제 복구"
+    },
+    "terrain_clamping_rule": {
+      "mechanism": "엔티티의 지형 고도(Clamp to Ground) 동기화 속성 강제",
+      "problem_solving": "계산된 화재 좌표의 해발 고도가 0이 아니더라도 울퉁불퉁한 산악 지형, 언덕, 분지 표면에 엔티티가 자동 밀착되도록 제어",
+      "visual_fix": "불 엔티티가 땅 밑이나 건물 내부에 파묻혀 마우스 레이캐스팅(클릭)이 차단되는 현상을 근본적으로 해결"
+    },
+    "fps_navigation_rule": {
+      "mechanism": "Pointer Lock API를 연동한 무클릭 마우스 룩(Look) 시스템",
+      "activation": "화면 클릭 시 마우스 커서를 숨기고 포인터를 화면 중앙에 고정(Pointer Lock)",
+      "interaction": "마우스 클릭+드래그 앤 드롭 방식이 아닌, 마우스를 움직이는 만큼 movementX, movementY 값을 트래킹",
+      "camera_rotation": "트래킹된 이동량을 Cesium 카메라의 lookRight(좌우 각도) 및 lookUp(상하 각도) API와 실시간 매핑하여 FPS 게임과 동일한 시선 전환 구현",
+      "release_and_escape": "브라우저 기본 사양에 따라 ESC 키 입력 시 포인터 락이 즉시 해제되며 마우스 커서가 다시 활성화됨. 해제 시 화면 내 '조작 일시정지' 오버레이 UI를 노출하여 브라우저 종료 및 메뉴 이동이 가능하도록 처리"
+    }
+  }
+}
