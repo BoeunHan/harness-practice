@@ -83,20 +83,24 @@
       ]
     },
     {
-      "id": "t5_fire_layer_clamp_to_ground",
-      "description": "FireLayer 컴포넌트의 불·연기 엔티티에 CLAMP_TO_GROUND 속성을 적용하여 지형 표면에 밀착 렌더링되도록 한다.",
-      "dependencies": [],
+      "id": "t5_crosshair_center_extinguish",
+      "description": "Pointer Lock 상태에서 화면 중앙 조준점이 가리키는 화재 엔티티를 중앙 클릭 이벤트로 감지하여 소화(extinguish)하도록 이벤트를 전면 수정한다.",
+      "dependencies": [
+        "t1_fps_camera_pointer_lock",
+        "t3_fps_overlay_component"
+      ],
       "related_files": ["app/src/components/FireLayer.tsx"],
       "implementation_details": [
-        "불(fire) 엔티티의 cylinder 속성 객체에 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND를 추가한다.",
-        "연기(smoke) 엔티티의 cylinder 속성 객체에 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND를 추가한다.",
-        "엔티티 position의 height 값을 0 또는 제거하여 CLAMP_TO_GROUND가 지형 표면 기준으로 작동하도록 처리한다.",
-        "기존 엔티티 추가/삭제 및 업데이트 로직은 변경하지 않는다."
+        "기존 ScreenSpaceEventHandler 기반의 마우스 물리 좌표 movement.position 픽킹 로직을 제거한다.",
+        "포인터 락 상태에서는 마우스 커서가 중앙에 고정되므로, `viewer.camera.getPickRay(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2))`를 사용하여 화면 정중앙을 관통하는 레이(Ray)를 생성한다.",
+        "생성된 뷰 레이를 이용해 `viewer.scene.pickFromRay(ray)` 혹은 정중앙 픽셀을 고정 타겟팅하는 `viewer.scene.pick(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2))` 객체를 확인한다.",
+        "document.addEventListener('click') 레이어 또는 전용 이벤트 핸들러에서 픽킹된 엔티티 ID가 '_fire'로 끝나는지 검증하고, 참일 경우 엔티티 ID 프리픽스(fireId)를 추출하여 extinguish(fireId)를 트리거한다.",
+        "isLocked상태일 때만 중앙 타겟팅 소화 로직이 작동하고 락 해제 상태일 때는 클릭 소화가 트리거되지 않도록 방어 코드를 심는다."
       ],
       "acceptance_criteria": [
-        "불·연기 엔티티가 산악 지형이나 언덕 표면에 CLAMP_TO_GROUND로 밀착 렌더링된다.",
-        "불·연기 엔티티가 지형 아래로 파묻히지 않는다.",
-        "기존 엔티티 추가/삭제 로직이 정상 동작한다."
+        "FPS 마우스 락 상태에서 화면 중앙의 조준점(Crosshair)을 불 엔티티에 조준하고 클릭했을 때 정상적으로 화재 진화가 호출된다.",
+        "불이 아닌 연기 기둥이나 맨땅, 건물을 조준하고 클릭했을 때는 진화 로직이 작동하지 않는다.",
+        "ESC를 눌러 조작 일시정지 오버레이가 뜬 상태(포인터 락 해제 상태)에서는 화면을 클릭해도 화재가 꺼지지 않는다."
       ]
     }
   ]

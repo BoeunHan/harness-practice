@@ -1,0 +1,16 @@
+{
+  "task_id": "t5_crosshair_center_extinguish",
+  "modified_files": [
+    "app/src/components/FireLayer.tsx",
+    "app/src/components/CesiumMap.tsx"
+  ],
+  "created_files": [],
+  "implementation_notes": [
+    "FireLayer.tsx: ScreenSpaceEventHandler 기반 LEFT_CLICK 핸들러를 제거하고 document.addEventListener('click') 기반 핸들러로 교체했다.",
+    "FireLayer.tsx: isLocked prop을 추가하여 포인터 락 상태일 때만 소화 로직이 동작하도록 방어 코드를 심었다.",
+    "FireLayer.tsx: 화면 정중앙 좌표(clientWidth/2, clientHeight/2)를 Cesium.Cartesian2로 생성하여 viewer.scene.pick()에 전달, 중앙 조준점 픽킹을 구현했다.",
+    "FireLayer.tsx: 사용되지 않는 handlerRef(useRef<ScreenSpaceEventHandler>) 를 제거했다.",
+    "CesiumMap.tsx: FireLayer에 isLocked prop을 전달하도록 수정했다."
+  ],
+  "issues": []
+}

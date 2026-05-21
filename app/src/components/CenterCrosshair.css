@@ -1,0 +1,38 @@
+.center-crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.crosshair-h,
+.crosshair-v {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.crosshair-h {
+  width: 20px;
+  height: 1px;
+  left: -10px;
+  top: -0.5px;
+}
+
+.crosshair-v {
+  width: 1px;
+  height: 20px;
+  left: -0.5px;
+  top: -10px;
+}
+
+.crosshair-center {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  left: -3px;
+  top: -3px;
+}

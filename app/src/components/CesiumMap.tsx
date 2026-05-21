@@ -6,6 +6,7 @@ import { useFireSimulation } from "../hooks/useFireSimulation";
 import FireLayer from "./FireLayer";
 import FireDashboard from "./FireDashboard";
 import FpsOverlay from "./FpsOverlay";
+import CenterCrosshair from "./CenterCrosshair";
 
 const FIRE_CENTER_LONGITUDE = 127.026177;
 const FIRE_CENTER_LATITUDE = 37.501197;
@@ -89,8 +90,9 @@ export default function CesiumMap() {
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {viewer && (
-        <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} />
+        <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} isLocked={isLocked} />
       )}
+      <CenterCrosshair />
       <FireDashboard count={fires.length} />
       <FpsOverlay isLocked={isLocked} onRequestLock={handleRequestLock} />
     </>

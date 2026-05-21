@@ -6,15 +6,17 @@ interface FireLayerProps {
   fires: FireEvent[];
   extinguish: (id: string) => void;
   viewer: Cesium.Viewer;
+  isLocked: boolean;
 }
+
+const MAX_INTERACTION_DISTANCE = 150;
 
 export default function FireLayer({
   fires,
   extinguish,
   viewer,
+  isLocked,
 }: FireLayerProps) {
-  const handlerRef = useRef<Cesium.ScreenSpaceEventHandler | null>(null);
-
   const prevEntityIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -102,29 +104,52 @@ export default function FireLayer({
   useEffect(() => {
     if (!viewer) return;
 
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handlerRef.current = handler;
+    const handleClick = () => {
+      if (!isLocked) return;
 
-    handler.setInputAction(
-      (movement: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
-        const picked = viewer.scene.pick(movement.position);
-        if (Cesium.defined(picked) && picked.id instanceof Cesium.Entity) {
-          const entityId: string = picked.id.id;
-          // 연기 엔티티(_smoke) 클릭은 무시하고 불 엔티티(_fire)만 처리
-          if (entityId.endsWith("_fire")) {
-            const fireId = entityId.slice(0, -5);
-            extinguish(fireId);
+      const centerX = viewer.canvas.clientWidth / 2;
+      const centerY = viewer.canvas.clientHeight / 2;
+      const picked = viewer.scene.pick(new Cesium.Cartesian2(centerX, centerY));
+
+      if (Cesium.defined(picked) && picked.id instanceof Cesium.Entity) {
+        const entityId: string = picked.id.id;
+        // 연기 엔티티(_smoke) 클릭은 무시하고 불 엔티티(_fire)만 처리
+        if (entityId.endsWith("_fire")) {
+          const fireId = entityId.slice(0, -5);
+          const entity = picked.id;
+
+          if (entity.position) {
+            const cameraPosition = viewer.camera.position;
+            let entityPosition: Cesium.Cartesian3;
+
+            // position이 CallbackProperty인 경우 평가
+            if (typeof entity.position.getValue === "function") {
+              entityPosition = entity.position.getValue(
+                Cesium.JulianDate.now(),
+              );
+            } else {
+              entityPosition = entity.position as Cesium.Cartesian3;
+            }
+
+            const distance = Cesium.Cartesian3.distance(
+              cameraPosition,
+              entityPosition,
+            );
+
+            if (distance <= MAX_INTERACTION_DISTANCE) {
+              extinguish(fireId);
+            }
           }
         }
-      },
-      Cesium.ScreenSpaceEventType.LEFT_CLICK,
-    );
+      }
+    };
+
+    document.addEventListener("click", handleClick);
 
     return () => {
-      handler.destroy();
-      handlerRef.current = null;
+      document.removeEventListener("click", handleClick);
     };
-  }, [viewer, extinguish]);
+  }, [viewer, extinguish, isLocked]);
 
   useEffect(() => {
     return () => {
