@@ -47,9 +47,10 @@ export function useFirePositionPool(viewer: Cesium.Viewer | undefined) {
         const altitude = randomInRange(150, 250);
 
         const origin = Cesium.Cartesian3.fromDegrees(lon, lat, altitude);
+        const { dLon: tDLon, dLat: tDLat } = randomOffsetDegrees(RADIUS_METERS);
         const target = Cesium.Cartesian3.fromDegrees(
-          CENTER_LONGITUDE,
-          CENTER_LATITUDE,
+          CENTER_LONGITUDE + tDLon,
+          CENTER_LATITUDE + tDLat,
           0,
         );
 

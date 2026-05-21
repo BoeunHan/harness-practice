@@ -1,0 +1,15 @@
+{
+  "task_id": "t4_fire_position_random_raycast",
+  "modified_files": [
+    "app/src/hooks/useFirePositionPool.ts"
+  ],
+  "created_files": [],
+  "implementation_notes": [
+    "기존 origin은 이미 randomOffsetDegrees()로 무작위 좌표를 사용하고 있었으나, target이 CENTER_LONGITUDE/CENTER_LATITUDE 고정값을 사용하고 있었음.",
+    "target에 별도의 randomOffsetDegrees() 호출을 추가하여 origin과 독립적인 무작위 바닥 좌표(높이 0m)를 생성하도록 수정.",
+    "origin 고도를 기존 randomInRange(150, 250) 대신 고정 500m로 변경하여 태스크 요구사항(높이 500m)에 맞춤.",
+    "randomInRange 함수는 더 이상 사용되지 않아 제거함.",
+    "randomOffsetDegrees 함수 및 scene.pickFromRay(pickFromRayMostDetailed) 기존 충돌 추출 로직은 유지됨."
+  ],
+  "issues": []
+}
