@@ -9,7 +9,7 @@ import FpsOverlay from "./FpsOverlay";
 import CenterCrosshair from "./CenterCrosshair";
 
 const FIRE_CENTER_LONGITUDE = 127.026177;
-const FIRE_CENTER_LATITUDE = 37.501197;
+const FIRE_CENTER_LATITUDE = 37.5011;
 const INITIAL_HEIGHT = 100;
 
 export default function CesiumMap() {
@@ -70,8 +70,8 @@ export default function CesiumMap() {
         INITIAL_HEIGHT,
       ),
       orientation: {
-        heading: Cesium.Math.toRadians(45),
-        pitch: Cesium.Math.toRadians(-15),
+        heading: Cesium.Math.toRadians(-20),
+        pitch: Cesium.Math.toRadians(-5),
         roll: 0,
       },
     });
