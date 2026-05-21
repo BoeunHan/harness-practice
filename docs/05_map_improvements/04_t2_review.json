@@ -1,0 +1,37 @@
+{
+  "task_id": "t2_camera_collision_boundary",
+  "result": "failed",
+  "issues": [
+    {
+      "type": "logic",
+      "file": "app/src/hooks/useFreeFlightCamera.ts",
+      "description": "카메라 충돌/경계 보정 로직이 scene.preRender 대신 clock.onTick으로 구현되었다.",
+      "expected_behavior": "viewer.scene.preRender.addEventListener(onPreRender)로 매 렌더 프레임마다 충돌·경계 보정을 수행해야 한다.",
+      "actual_behavior": "clock.onTick.addEventListener 내부에서 이동 + 보정 로직을 모두 처리한다. onTick은 클록 기반으로 렌더 프레임과 동기화되지 않으며, preRender와 실행 타이밍이 다르다.",
+      "fix_suggestion": "이동 처리는 onTick에 유지하되, 충돌·경계 보정(반경 600m, 고도 5~300m, 지상고 5m)은 별도의 onPreRender 콜백으로 분리하여 scene.preRender.addEventListener로 등록해야 한다. cleanup에서도 scene.preRender.removeEventListener(onPreRender)로 해제해야 한다."
+    },
+    {
+      "type": "missing_feature",
+      "file": "app/src/hooks/useFreeFlightCamera.ts",
+      "description": "scene.sampleHeight 호출 시 3D Tiles tileset 인수가 누락되어 건물 높이가 반영되지 않는다.",
+      "expected_behavior": "scene.sampleHeight(camera.positionCartographic, [3D Tiles tileset])처럼 tileset 객체를 두 번째 인수로 전달하여 건물 포함 실제 지상고를 계산해야 한다.",
+      "actual_behavior": "scene.sampleHeight(camera.positionCartographic)로 호출하여 tileset 인수가 없다(line 202). 이 경우 지형 고도만 반영되고 3D 건물 높이는 무시되어 건물 내부 진입을 막지 못한다.",
+      "fix_suggestion": "useFreeFlightCamera 훅이 viewer와 함께 3D Tiles tileset을 파라미터로 받거나, viewer.scene.primitives에서 tileset을 조회한 뒤 scene.sampleHeight(positionCartographic, [tileset]) 형태로 전달해야 한다."
+    },
+    {
+      "type": "logic",
+      "file": "app/src/hooks/useFreeFlightCamera.ts",
+      "description": "충돌·경계 보정 로직 전체가 isLockedRef.current 가드 안에 있어 포인터 락 해제 상태에서는 보정이 동작하지 않는다.",
+      "expected_behavior": "카메라 충돌 보정 및 경계 제한은 포인터 락 여부와 무관하게 항상 적용되어야 한다(AC: '카메라가 건물/지형 아래로 진입하려 할 때 최소 5m 지상고가 유지').",
+      "actual_behavior": "tickListener 최상단의 if (!isLockedRef.current) return(line 83)으로 인해 포인터 락이 해제된 상태에서는 고도 클램핑·반경 제한·지상고 보정이 전혀 실행되지 않는다.",
+      "fix_suggestion": "이동 관련 속도·방향 계산은 isLockedRef.current 가드 안에 두되, 충돌·경계 보정 로직은 가드 밖(또는 별도 preRender 콜백)에서 항상 실행되도록 분리해야 한다."
+    }
+  ],
+  "positive_notes": [
+    "scene.globe.depthTestAgainstTerrain = true가 올바르게 설정되어 있다(line 35).",
+    "중심 좌표(CENTER_LONGITUDE, CENTER_LATITUDE), MAX_RADIUS(600), MIN_HEIGHT(5), MAX_HEIGHT(300), MIN_GROUND_CLEARANCE(5) 상수가 Task 명세와 정확히 일치한다.",
+    "반경 600m 초과 시 경계 방향으로 속도를 0으로 리셋하고 위치를 복구하는 로직의 수학적 계산이 올바르다(lines 161-181).",
+    "고도 클램핑(5m~300m) 로직이 정확하게 구현되어 있다(lines 188-200).",
+    "useEffect cleanup에서 tickListener()를 호출하여 onTick 리스너를 해제하고 있다(line 238)."
+  ]
+}

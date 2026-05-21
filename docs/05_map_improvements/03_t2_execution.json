@@ -1,0 +1,13 @@
+{
+  "task_id": "t2_camera_collision_boundary",
+  "modified_files": ["app/src/hooks/useFreeFlightCamera.ts"],
+  "created_files": [],
+  "implementation_notes": [
+    "CENTER_LONGITUDE / CENTER_LATITUDE / MAX_RADIUS / MIN_HEIGHT / MAX_HEIGHT / MIN_GROUND_CLEARANCE 상수를 파일 상단에 정의하였다.",
+    "scene.globe.depthTestAgainstTerrain = true를 useEffect 내 초기화 시 설정하였다.",
+    "기존 scene.preRender 기반 처리는 clock.onTick의 이동 연산과 시점 차이로 인해 경계 제한이 무력화(뚫림 현상)되는 문제를 발견하여, 모든 카메라 위치 제어 로직을 clock.onTick 핸들러 내부로 통합 및 순차 실행되도록 구조를 개편하였다.",
+    "clock.onTick 내부에서 키 입력에 따른 다음 이동 예정 좌표(nextPosition)를 먼저 계산한 후, 중심점으로부터의 거리가 600m(MAX_RADIUS)를 초과할 경우 중심 방향 벡터의 600m 경계선에 강제 고정하고 관성 가속도(velocity)를 ZERO로 초기화하여 벽을 뚫는 현상을 완벽히 차단하였다.",
+    "경계 제한이 완료된 최종 좌표를 camera.position에 대입한 직후, 고도 클램핑(5~300m)을 수행하고 이어서 scene.sampleHeight를 활용하여 지형 및 3D Tiles 건물을 포함한 최소 지상고(5m) 보정이 최종적으로 덮어쓰도록 순서를 배치하였다."
+  ],
+  "issues": []
+}
