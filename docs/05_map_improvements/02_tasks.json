@@ -1,0 +1,103 @@
+{
+  "tasks": [
+    {
+      "id": "t1_fps_camera_pointer_lock",
+      "description": "useFreeFlightCamera 훅을 Pointer Lock API 기반 FPS 시선 제어로 교체하고, isLocked 상태를 반환값에 추가한다.",
+      "dependencies": [],
+      "related_files": ["app/src/hooks/useFreeFlightCamera.ts"],
+      "implementation_details": [
+        "기존 LEFT_DRAG Look 방식(screenSpaceEventHandler 기반 마우스 드래그 시선 제어)을 제거한다.",
+        "document.addEventListener('click', ...) 핸들러 내에서 viewer.canvas.requestPointerLock()을 호출하여 Pointer Lock을 요청한다. (보안 정책: 반드시 사용자 클릭 이벤트 내에서만 호출)",
+        "document.addEventListener('pointerlockchange', ...) 이벤트로 document.pointerLockElement === viewer.canvas 여부를 감지해 isLocked 상태(useState 또는 useRef)를 업데이트한다.",
+        "document.addEventListener('mousemove', ...) 이벤트에서 event.movementX, event.movementY를 읽어, isLocked가 true일 때만 viewer.camera.lookRight(movementX * sensitivity) 및 viewer.camera.lookUp(-movementY * sensitivity)를 호출한다.",
+        "sensitivity는 0.002 수준의 상수로 정의한다.",
+        "훅의 반환값에 isLocked: boolean을 추가한다.",
+        "useEffect cleanup에서 click, mousemove, pointerlockchange 이벤트 리스너를 모두 removeEventListener로 해제한다."
+      ],
+      "acceptance_criteria": [
+        "화면 클릭 시 마우스 커서가 숨겨지고 포인터 락이 활성화된다.",
+        "마우스 이동만으로 카메라 시선이 FPS 방식으로 전환된다.",
+        "ESC 키 입력 시 포인터 락이 해제되고 isLocked가 false로 변경된다.",
+        "컴포넌트 언마운트 시 click, mousemove, pointerlockchange 이벤트 리스너가 모두 해제된다."
+      ]
+    },
+    {
+      "id": "t2_camera_collision_boundary",
+      "description": "useFreeFlightCamera 훅에 preRender 기반 카메라 충돌 보정(건물/지형 최소 지상고 5m) 및 경계 제한(중심점 기준 반경 600m, 고도 5~300m) 로직을 추가한다.",
+      "dependencies": ["t1_fps_camera_pointer_lock"],
+      "related_files": ["app/src/hooks/useFreeFlightCamera.ts"],
+      "implementation_details": [
+        "viewer.scene.globe.depthTestAgainstTerrain = true를 설정하여 기본 지형 투과를 방지한다.",
+        "viewer.scene.preRender.addEventListener(onPreRender) 으로 매 프레임 콜백을 등록한다.",
+        "onPreRender 내부: scene.sampleHeight(camera.positionCartographic, [3D Tiles tileset]) 를 호출하여 카메라 발밑의 실제 높이(건물 포함)를 계산한다. 결과 높이 + 5m보다 카메라 고도가 낮으면 camera.position을 강제로 올린다.",
+        "onPreRender 내부: 중심 좌표(위도 37.501197, 경도 127.026177)를 Cartesian3으로 변환한다. Cartesian3.distance(camera.position, centerCartesian)가 600m를 초과하면, 중심 방향 벡터를 계산하여 초과분만큼 카메라 위치를 복구한다.",
+        "onPreRender 내부: camera.positionCartographic.height가 300m를 초과하면 300m로 클램핑한다. 5m 미만이면 5m로 클램핑한다.",
+        "useEffect cleanup에서 preRender 리스너를 removeEventListener로 해제한다."
+      ],
+      "acceptance_criteria": [
+        "카메라가 건물(3D Tiles) 내부 또는 지형 아래로 진입하려 할 때 최소 5m 지상고가 유지되도록 카메라 위치가 강제 조정된다.",
+        "카메라가 중심점으로부터 600m를 초과하면 경계 안쪽으로 즉시 복구된다.",
+        "카메라 고도가 5m 미만으로 내려가지 않고 300m를 초과하지 않는다.",
+        "컴포넌트 언마운트 시 preRender 리스너가 해제된다."
+      ]
+    },
+    {
+      "id": "t3_fps_overlay_component",
+      "description": "Pointer Lock 해제 상태일 때 화면 중앙에 '조작 일시정지' 오버레이를 표시하는 FpsOverlay 컴포넌트를 신규 생성하고, CesiumMap에 연결한다.",
+      "dependencies": ["t1_fps_camera_pointer_lock"],
+      "related_files": [
+        "app/src/components/FpsOverlay.tsx",
+        "app/src/components/CesiumMap.tsx"
+      ],
+      "implementation_details": [
+        "FpsOverlay.tsx 신규 생성: props로 isLocked: boolean과 onRequestLock: () => void를 받는다.",
+        "isLocked가 false일 때만 렌더링하는 오버레이 div를 반환한다. position: fixed, 화면 중앙 정렬, 반투명 검정 배경으로 스타일링한다.",
+        "오버레이 내부에 '조작 일시정지' 제목 텍스트를 표시한다.",
+        "오버레이 내부에 '클릭하여 재개' 버튼을 표시하고, onClick 시 onRequestLock()을 호출한다.",
+        "오버레이 내부에 브라우저 메뉴 이동 및 종료 안내 문구(예: 'ESC를 눌러 조작을 일시정지할 수 있습니다')를 포함한다.",
+        "CesiumMap.tsx 수정: useFreeFlightCamera가 반환하는 isLocked를 구독한다. 포인터 락 재요청 함수(canvas.requestPointerLock 호출)를 정의하고 FpsOverlay에 전달한다. JSX 렌더링 트리에 <FpsOverlay isLocked={isLocked} onRequestLock={handleRequestLock} />를 추가한다."
+      ],
+      "acceptance_criteria": [
+        "ESC 키 입력 시 포인터 락이 해제되고 '조작 일시정지' 오버레이 UI가 화면에 표시된다.",
+        "오버레이에서 '클릭하여 재개' 버튼을 클릭하면 포인터 락이 재활성화되고 오버레이가 사라진다.",
+        "오버레이에 브라우저 메뉴 이동 및 종료 안내 문구가 포함되어 있다.",
+        "포인터 락이 활성화된 상태에서는 오버레이가 표시되지 않는다."
+      ]
+    },
+    {
+      "id": "t4_fire_position_random_raycast",
+      "description": "useFirePositionPool 훅의 레이캐스팅 종점을 중앙 고정에서 바닥 범위 내 무작위 좌표로 변경하여 화재 위치를 분산시킨다.",
+      "dependencies": [],
+      "related_files": ["app/src/hooks/useFirePositionPool.ts"],
+      "implementation_details": [
+        "randomOffsetDegrees() 유틸 함수를 훅 내부에 정의한다. 경위도 각각 ±0.003도 범위(약 300m) 내의 무작위 오프셋을 반환한다.",
+        "레이 시작점(origin)을 CENTER_LONGITUDE/CENTER_LATITUDE 고정값 대신 randomOffsetDegrees()를 적용한 무작위 좌표 상공(높이 500m 등)으로 설정한다.",
+        "레이 종점(target)을 기존 CENTER_LONGITUDE/CENTER_LATITUDE 고정값 대신 randomOffsetDegrees()를 적용한 무작위 바닥 좌표(높이 0m)로 설정한다.",
+        "시작점 Cartesian3과 종점 Cartesian3으로 방향 벡터를 계산하고, Cesium.Ray(origin, direction)를 생성한다.",
+        "scene.pickFromRay(ray, ...)로 실제 충돌 좌표를 추출하는 기존 로직은 유지한다."
+      ],
+      "acceptance_criteria": [
+        "각 화재 발생 위치의 레이캐스팅 종점이 중앙 고정이 아닌 바닥 범위 내 무작위 좌표로 분산 생성된다.",
+        "시작점도 무작위 오프셋 좌표 상공으로 설정되어 각 레이가 서로 다른 임의의 방향을 향한다.",
+        "기존 scene.pickFromRay 충돌 좌표 추출 로직이 유지된다."
+      ]
+    },
+    {
+      "id": "t5_fire_layer_clamp_to_ground",
+      "description": "FireLayer 컴포넌트의 불·연기 엔티티에 CLAMP_TO_GROUND 속성을 적용하여 지형 표면에 밀착 렌더링되도록 한다.",
+      "dependencies": [],
+      "related_files": ["app/src/components/FireLayer.tsx"],
+      "implementation_details": [
+        "불(fire) 엔티티의 cylinder 속성 객체에 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND를 추가한다.",
+        "연기(smoke) 엔티티의 cylinder 속성 객체에 heightReference: Cesium.HeightReference.CLAMP_TO_GROUND를 추가한다.",
+        "엔티티 position의 height 값을 0 또는 제거하여 CLAMP_TO_GROUND가 지형 표면 기준으로 작동하도록 처리한다.",
+        "기존 엔티티 추가/삭제 및 업데이트 로직은 변경하지 않는다."
+      ],
+      "acceptance_criteria": [
+        "불·연기 엔티티가 산악 지형이나 언덕 표면에 CLAMP_TO_GROUND로 밀착 렌더링된다.",
+        "불·연기 엔티티가 지형 아래로 파묻히지 않는다.",
+        "기존 엔티티 추가/삭제 로직이 정상 동작한다."
+      ]
+    }
+  ]
+}
