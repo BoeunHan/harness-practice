@@ -7,6 +7,8 @@ import FireLayer from "./FireLayer";
 import FireDashboard from "./FireDashboard";
 import FpsOverlay from "./FpsOverlay";
 import CenterCrosshair from "./CenterCrosshair";
+import LabelLayer from "./LabelLayer";
+import { LABELS } from "../data/labels";
 
 const FIRE_CENTER_LONGITUDE = 127.026177;
 const FIRE_CENTER_LATITUDE = 37.5011;
@@ -90,12 +92,15 @@ export default function CesiumMap() {
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       {viewer && (
-        <FireLayer
-          fires={fires}
-          extinguish={extinguish}
-          viewer={viewer}
-          isLocked={isLocked}
-        />
+        <>
+          <FireLayer
+            fires={fires}
+            extinguish={extinguish}
+            viewer={viewer}
+            isLocked={isLocked}
+          />
+          <LabelLayer labels={LABELS} viewer={viewer} />
+        </>
       )}
       <CenterCrosshair />
       <FireDashboard count={fires.length} />
