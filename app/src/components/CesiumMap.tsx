@@ -5,6 +5,7 @@ import { useFirePositionPool } from "../hooks/useFirePositionPool";
 import { useFireSimulation } from "../hooks/useFireSimulation";
 import FireLayer from "./FireLayer";
 import FireDashboard from "./FireDashboard";
+import FpsOverlay from "./FpsOverlay";
 
 const FIRE_CENTER_LONGITUDE = 127.026177;
 const FIRE_CENTER_LATITUDE = 37.501197;
@@ -14,7 +15,11 @@ export default function CesiumMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [viewer, setViewer] = useState<Cesium.Viewer | null>(null);
 
-  useFreeFlightCamera(viewer);
+  const { isLocked } = useFreeFlightCamera(viewer);
+
+  const handleRequestLock = () => {
+    viewer?.canvas.requestPointerLock();
+  };
 
   const { FIRE_POSITIONS_POOL, isReady } = useFirePositionPool(
     viewer ?? undefined,
@@ -87,6 +92,7 @@ export default function CesiumMap() {
         <FireLayer fires={fires} extinguish={extinguish} viewer={viewer} />
       )}
       <FireDashboard count={fires.length} />
+      <FpsOverlay isLocked={isLocked} onRequestLock={handleRequestLock} />
     </>
   );
 }
