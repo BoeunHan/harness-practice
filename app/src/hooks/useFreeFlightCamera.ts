@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Cesium from "cesium";
+
+const SENSITIVITY = 0.001;
 
 const validKeys = new Set([
   "KeyW",
@@ -11,28 +13,44 @@ const validKeys = new Set([
   "ShiftLeft",
 ]);
 
-export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
+export function useFreeFlightCamera(viewer: Cesium.Viewer | null): {
+  isLocked: boolean;
+} {
+  const [isLocked, setIsLocked] = useState(false);
+  const isLockedRef = useRef(false);
+
   useEffect(() => {
     if (!viewer) return;
 
     const { scene, camera, clock } = viewer;
     const { screenSpaceCameraController } = scene;
 
-    // LEFT_DRAG를 Look으로 리매핑 (기본 Orbit 대신 FPS Look)
-    screenSpaceCameraController.lookEventTypes = [
-      { eventType: Cesium.CameraEventType.LEFT_DRAG },
-      {
-        eventType: Cesium.CameraEventType.LEFT_DRAG,
-        modifier: Cesium.KeyboardEventModifier.SHIFT,
-      },
-    ];
-    screenSpaceCameraController.enableLook = true;
-
     // 관성 제거
     screenSpaceCameraController.inertiaSpin = 0;
     screenSpaceCameraController.inertiaTranslate = 0;
     screenSpaceCameraController.inertiaZoom = 0;
     screenSpaceCameraController.enableRotate = false;
+    screenSpaceCameraController.enableLook = false;
+
+    const onClick = () => {
+      viewer.canvas.requestPointerLock();
+    };
+
+    const onPointerLockChange = () => {
+      const locked = document.pointerLockElement === viewer.canvas;
+      isLockedRef.current = locked;
+      setIsLocked(locked);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isLockedRef.current) return;
+      camera.lookRight(e.movementX * SENSITIVITY);
+      camera.lookUp(-e.movementY * SENSITIVITY);
+    };
+
+    document.addEventListener("click", onClick);
+    document.addEventListener("pointerlockchange", onPointerLockChange);
+    document.addEventListener("mousemove", onMouseMove);
 
     const keys = new Set<string>();
 
@@ -144,7 +162,12 @@ export function useFreeFlightCamera(viewer: Cesium.Viewer | null) {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("pointerlockchange", onPointerLockChange);
+      document.removeEventListener("mousemove", onMouseMove);
       tickListener();
     };
   }, [viewer]);
+
+  return { isLocked };
 }
