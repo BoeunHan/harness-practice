@@ -25,7 +25,7 @@
 ## 하네스 아키텍처
 
 단순한 텍스트 기반의 일방향 AI 코드 생성이 아닌, 개발자가 중간 단계에서 파이프라인을 통제할 수 있는 **인터랙션 분기 구조**를 구현했습니다.
-<img width="1436" height="1252" alt="Frame 17" src="https://github.com/user-attachments/assets/370af141-3b9d-42f0-a2fb-ce421caadd74" />
+<img width="1436" height="1252" alt="하네스 아키텍처" src="https://github.com/user-attachments/assets/370af141-3b9d-42f0-a2fb-ce421caadd74" />
 
 ---
 ## 폴더 구조
@@ -53,7 +53,7 @@
 ```
 
 ---
-## 3D 시뮬레이터 주요 구현 기능
+## 주요 구현 기능
 - 건물과 지형의 3D 환경 반영
 - FPS 스타일 3D 가상 공간 카메라 제어 (WASDEQ 키를 통한 방향 제어, 마우스 드래그로 시선 제어, Shift로 이동속도 가속)
 - 랜덤 화재 발생 시, 사선 레이저 캐스팅을 활용하여 지면이나 건물 옥상뿐만 아니라 건물 벽면까지 포함한 정확한 화재 위치 산출
@@ -62,6 +62,14 @@
 - 카메라 이동 범위 제한 및 반대 방향 키 동시 클릭 시 발생하는 런타임 에러 수정
 - 컴포넌트 언마운트 시 발생할 수 있는 리소스 누수 방어
 ---
+
+## 주요 화면
+
+<img width="1905" height="887" alt="상공에서 내려다본 지상" src="https://github.com/user-attachments/assets/9bbf293f-779d-473d-9307-a5b583e9b86b" />
+<img width="1907" height="901" alt="건물 외벽에 화재가 발생한 모습" src="https://github.com/user-attachments/assets/e2510d5f-5bb2-41ca-8221-26a663ab0b0d" />
+<img width="1892" height="883" alt="조작을 일시정지한 화면" src="https://github.com/user-attachments/assets/602b1ded-a645-4cd9-b862-d2ee684f7369" />
+
+--- 
 ## 실행 방법
 ### 파이프라인 실행 방식
 파이프라인을 구동하여 코드를 생성하거나 하네스 인터랙션을 테스트하는 단계입니다. 
