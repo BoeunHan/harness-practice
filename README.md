@@ -37,8 +37,8 @@
 │       ├── components/   # UI 컴포넌트 (지도, 대시보드 등)
 │       ├── hooks/        # 카메라 제어 및 레이저 캐스팅 커스텀 훅 모듈
 │       ├── types/        # 타입 정의
-│       ├── App.jsx       # 메인 애플리케이션 엔트리
-│       └── main.jsx
+│       ├── App.tsx       # 메인 애플리케이션 엔트리
+│       └── main.tsx
 │
 ├── harness/              # [AI Pipeline Engine] 파이프라인 엔지니어링 Python 모듈
 │   ├── debug/            # 현재 실행한 에이전트에게 제공한 prompt 전체 완성본 (디버깅용)
